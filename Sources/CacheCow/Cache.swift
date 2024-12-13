@@ -10,7 +10,7 @@ import Foundation
 final class Cache<Key: Hashable, Value> {
     private let wrapped = NSCache<WrappedKey, Entry>()
     private let dateProvider: () -> Date
-    private let entryLifetime: TimeInterval
+    public let entryLifetime: TimeInterval
     private let keyTracker = KeyTracker()
 
     var keys: some Collection<Key> { keyTracker.keys }
