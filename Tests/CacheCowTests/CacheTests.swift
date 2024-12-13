@@ -6,6 +6,8 @@
 //
 
 import Testing
+import Foundation
+
 @testable import CacheCow
 
 struct Test {
@@ -35,6 +37,45 @@ struct Test {
             #expect(nil == sut.value(forKey: Test.anyKey))
         }
         
+        @Test func returns_inserted_value_before_entry_lifetime_expended() async throws {
+            let time = DummyTime()
+            let lifetime = TimeInterval(60)
+            let sut = Cache<String, String>(dateProvider: time.currentTime, entryLifetime: lifetime)
+            let expected = "hello"
+            
+            sut.insert(expected, forKey: Test.anyKey)
+            
+            time.increment(by: lifetime - 1)
+            
+            #expect(expected == sut.value(forKey: Test.anyKey))
+        }
+
+        @Test func returns_nil_when_entry_lifetime_expended() async throws {
+            let time = DummyTime()
+            let lifetime = TimeInterval(60)
+            let sut = Cache<String, String>(dateProvider: time.currentTime, entryLifetime: lifetime)
+            let expected = "hello"
+            
+            sut.insert(expected, forKey: Test.anyKey)
+            
+            time.increment(by: lifetime)
+            
+            #expect(nil == sut.value(forKey: Test.anyKey))
+        }
+
+        @Test func returns_nil_after_entry_lifetime_expended() async throws {
+            let time = DummyTime()
+            let lifetime = TimeInterval(60)
+            let sut = Cache<String, String>(dateProvider: time.currentTime, entryLifetime: lifetime)
+            let expected = "hello"
+            
+            sut.insert(expected, forKey: Test.anyKey)
+            
+            time.increment(by: lifetime + 1)
+            
+            #expect(nil == sut.value(forKey: Test.anyKey))
+        }
+
     }
     
     struct subscripting {
@@ -64,4 +105,21 @@ struct Test {
     }
     
     private static let anyKey: String  = "any"
+    
+    final class DummyTime {
+        var time: Date
+        
+        init(time: Date = .now) {
+            self.time = time
+        }
+        
+        func increment(by timeInterval: TimeInterval) {
+            time = time.addingTimeInterval(timeInterval)
+        }
+        
+        func currentTime() -> Date {
+            print(#function, time)
+            return time
+        }
+    }
 }
