@@ -10,7 +10,7 @@ import Testing
 
 struct Test {
     
-    struct ValueForKey {
+    struct valueForKey {
         @Test func returns_nil_for_empty_cache() async throws {
             let sut = Cache<String, String>()
             #expect(nil == sut.value(forKey: Test.anyKey))
