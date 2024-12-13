@@ -13,6 +13,10 @@ public protocol Caching {
     
     associatedtype Keys: Collection<Key>
     
+    init(dateProvider: @escaping () -> Date,
+         entryLifetime: TimeInterval,
+         countLimit: Int)
+    
     var keys: Keys { get }
     var count: Int { get }
     var isEmpty: Bool { get }
