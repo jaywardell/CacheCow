@@ -284,7 +284,7 @@ struct CacheTests {
     private static let anyKey: String  = "any"
     
     @discardableResult
-    static func insertSomeEntries(into sut: Cache<String, String>) -> [String] {
+    private static func insertSomeEntries(into sut: Cache<String, String>) -> [String] {
         let expectedCount = Int.random(in: 2 ... 20)
         
         let expected = (0 ..< expectedCount).map(String.init)
@@ -296,7 +296,7 @@ struct CacheTests {
         return expected
     }
     
-    final class DummyTime {
+    private final class DummyTime {
         var time: Date
         
         init(time: Date = .now) {
