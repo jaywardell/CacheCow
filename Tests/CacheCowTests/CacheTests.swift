@@ -207,6 +207,19 @@ struct Test {
 
     }
     
+    struct Encoding {
+        @Test func round_trip_for_empty_cache() async throws {
+            let (sut, _) = Test.makeSUT()
+            let encoder = JSONEncoder()
+            let decoder = JSONDecoder()
+            
+            let data = try encoder.encode(sut)
+            let decoded = try decoder.decode(Cache<String, String>.self, from: data)
+            
+            #expect(decoded.isEmpty)
+        }
+    }
+    
     // MARK: - Helpers
     
     private static func makeSUT(lifetime: TimeInterval = 60) -> (Cache<String, String>, DummyTime) {
