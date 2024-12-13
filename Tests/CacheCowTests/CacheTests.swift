@@ -59,7 +59,54 @@ struct Test {
         }
 
     }
-    
+
+    struct count {
+        @Test func returns_0_if_no_inserts_have_happened() async throws {
+            let sut = Cache<String, String>()
+
+            #expect(0 == sut.count)
+        }
+
+        @Test func returns_one_if_one_key_has_been_inserted() async throws {
+            let sut = Cache<String, String>()
+
+            sut.insert("hello", forKey: Test.anyKey)
+            
+            #expect(1 == sut.count)
+        }
+
+        @Test func returns_count_of_all_inserted_keys() async throws {
+            let sut = Cache<String, String>()
+            let expectedCount = Int.random(in: 2 ... 20)
+            
+            let expected = (0 ..< expectedCount).map(String.init)
+            
+            for i in 0 ..< expectedCount {
+                sut.insert("", forKey: String(i))
+            }
+            
+            #expect(expectedCount == sut.count)
+        }
+        
+        @Test func returns_0_after_all_keys_removed() async throws {
+            let sut = Cache<String, String>()
+
+            let expectedCount = Int.random(in: 2 ... 20)
+            
+            let expected = (0 ..< expectedCount).map(String.init)
+            
+            for i in 0 ..< expectedCount {
+                sut.insert("", forKey: String(i))
+            }
+
+            for key in expected {
+                sut.removeValue(forKey: key)
+            }
+            
+            #expect(0 == sut.count)
+        }
+
+    }
     struct valueForKey {
         @Test func returns_nil_for_empty_cache() async throws {
             let sut = Cache<String, String>()
