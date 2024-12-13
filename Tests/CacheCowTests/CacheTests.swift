@@ -207,6 +207,23 @@ struct Test {
 
     }
     
+    struct countLimit {
+
+        @Test func defaults_to_0() async throws {
+            // this needs to be tested because it references a value in the wrapped type
+            let sut = Cache<String, String>()
+            
+            #expect(0 == sut.countLimit)
+        }
+
+        @Test func takes_sets_countLimit_to_value_passed_in() async throws {
+            // this needs to be tested because it references a value in the wrapped type
+            let expected = 15
+            let sut = Cache<String, String>(countLimit: expected)
+            
+            #expect(sut.countLimit == expected)
+        }
+    }
     struct Encoding {
         @Test func round_trip_for_empty_cache() async throws {
             let (sut, _) = Test.makeSUT()

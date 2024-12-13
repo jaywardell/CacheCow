@@ -16,10 +16,12 @@ final class Cache<Key: Hashable, Value> {
     
     // MARK: -
     init(dateProvider: @escaping () -> Date = Date.init,
-         entryLifetime: TimeInterval = 12 * 60 * 60) {
+         entryLifetime: TimeInterval = 12 * 60 * 60,
+         countLimit: Int = 0) {
         self.dateProvider = dateProvider
         self.entryLifetime = entryLifetime
-
+        
+        wrapped.countLimit = countLimit
         wrapped.delegate = keyTracker
     }
 
@@ -48,6 +50,13 @@ final class Cache<Key: Hashable, Value> {
     var count: Int { keyTracker.keys.count }
     var isEmpty: Bool { keyTracker.keys.isEmpty }
 
+    /// The maximum number of objects the cache should hold.
+    ///
+    /// Discussion
+    /// returns the countLimit for the wrapped NSCache.
+    ///
+    /// Note that this may or may not be enforced by NSCache.
+    var countLimit: Int { wrapped.countLimit }
     func insert(_ value: Value, for key: Key) {
         let date = dateProvider().addingTimeInterval(entryLifetime)
         let entry = Entry(key: key, value: value, expirationDate: date)
