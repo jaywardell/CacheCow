@@ -65,7 +65,7 @@ public extension Cache {
     }
 
 
-    func value(forKey key: Key) -> Value? {
+    func value(for key: Key) -> Value? {
 
         return entry(for: key)?.value
     }
@@ -79,7 +79,7 @@ public extension Cache {
     }
 
     subscript(key: Key) -> Value? {
-        get { return value(forKey: key) }
+        get { return value(for: key) }
         set {
             guard let value = newValue else {
                 // If nil was assigned using our subscript,

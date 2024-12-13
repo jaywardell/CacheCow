@@ -109,7 +109,7 @@ struct CacheTests {
     struct valueForKey {
         @Test func returns_nil_for_empty_cache() async throws {
             let (sut, _) = CacheTests.makeSUT()
-            #expect(nil == sut.value(forKey: CacheTests.anyKey))
+            #expect(nil == sut.value(for: CacheTests.anyKey))
         }
         
         @Test func returns_inserted_value() async throws {
@@ -118,7 +118,7 @@ struct CacheTests {
             
             sut.insert(expected, for: CacheTests.anyKey)
             
-            #expect(expected == sut.value(forKey: CacheTests.anyKey))
+            #expect(expected == sut.value(for: CacheTests.anyKey))
         }
         
         @Test func returns_nil_after_value_removed() async throws {
@@ -128,7 +128,7 @@ struct CacheTests {
             sut.insert(expected, for: CacheTests.anyKey)
             sut.removeValue(for: CacheTests.anyKey)
             
-            #expect(nil == sut.value(forKey: CacheTests.anyKey))
+            #expect(nil == sut.value(for: CacheTests.anyKey))
         }
         
         @Test func returns_inserted_value_before_entry_lifetime_expended() async throws {
@@ -140,7 +140,7 @@ struct CacheTests {
             
             time.increment(by: lifetime - 1)
             
-            #expect(expected == sut.value(forKey: CacheTests.anyKey))
+            #expect(expected == sut.value(for: CacheTests.anyKey))
         }
 
         @Test func returns_nil_when_entry_lifetime_expended() async throws {
@@ -152,7 +152,7 @@ struct CacheTests {
             
             time.increment(by: lifetime)
             
-            #expect(nil == sut.value(forKey: CacheTests.anyKey))
+            #expect(nil == sut.value(for: CacheTests.anyKey))
         }
 
         @Test func returns_nil_after_entry_lifetime_expended() async throws {
@@ -164,7 +164,7 @@ struct CacheTests {
             
             time.increment(by: lifetime + 1)
             
-            #expect(nil == sut.value(forKey: CacheTests.anyKey))
+            #expect(nil == sut.value(for: CacheTests.anyKey))
         }
 
     }
@@ -248,7 +248,7 @@ struct CacheTests {
             
             #expect(Set(sut.keys) == Set(decoded.keys))
             for key in decoded.keys {
-                #expect(sut.value(forKey: key) == decoded.value(forKey: key))
+                #expect(sut.value(for: key) == decoded.value(for: key))
             }
         }
     }
@@ -267,7 +267,7 @@ struct CacheTests {
             
             #expect(Set(sut.keys) == Set(retrieved.keys))
             for key in retrieved.keys {
-                #expect(sut.value(forKey: key) == retrieved.value(forKey: key))
+                #expect(sut.value(for: key) == retrieved.value(for: key))
             }
 
             try fm.removeItem(at: savedTo)
