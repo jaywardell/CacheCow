@@ -253,6 +253,27 @@ struct CacheTests {
         }
     }
     
+    struct Saving {
+        
+        @Test func saves_and_retrieves_from_disk() async throws {
+            let (sut, _) = CacheTests.makeSUT()
+            let filename = #function
+            
+            insertSomeEntries(into: sut)
+            
+            let fm = FileManager()
+            let savedTo = try sut.saveToFile(named: filename, using: fm)
+            let retrieved = try Cache<String, String>.readFromFile(named: filename, using: fm)
+            
+            #expect(Set(sut.keys) == Set(retrieved.keys))
+            for key in retrieved.keys {
+                #expect(sut.value(forKey: key) == retrieved.value(forKey: key))
+            }
+
+            try fm.removeItem(at: savedTo)
+        }
+    }
+    
     // MARK: - Helpers
     
     private static func makeSUT(lifetime: TimeInterval = 60) -> (Cache<String, String>, DummyTime) {

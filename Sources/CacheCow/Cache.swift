@@ -155,3 +155,53 @@ extension Cache: Codable where Key: Codable, Value: Codable {
         try container.encode(keyTracker.keys.compactMap { entry(for: $0) } )
     }
 }
+
+public extension Cache where Key: Codable, Value: Codable {
+    
+    private static func cacheURL(named name: String, using fileManager: FileManager) -> URL {
+        let folderURLs = fileManager.urls(
+            for: .cachesDirectory,
+            in: .userDomainMask
+        )
+        
+        return folderURLs[0].appendingPathComponent(name + ".cache")
+    }
+    
+    func saveToFile(
+        named name: String,
+        using fileManager: FileManager = .default
+    ) throws -> URL {
+        let fileURL = Self.cacheURL(named: name, using: fileManager)
+        try saveAsJSON(to: fileURL)
+        return fileURL
+    }
+    
+    
+    static func readFromFile(named name: String, using fileManager: FileManager) throws -> Cache {
+        let fileURL = cacheURL(named: name, using: fileManager)
+        return try readAsJSON(from: fileURL)
+    }
+}
+
+public extension Encodable {
+    
+    func saveAsJSON(to fileURL: URL,
+              using fileManager: FileManager = .default
+    ) throws {
+        
+        let data = try JSONEncoder().encode(self)
+        try data.write(to: fileURL)
+    }
+
+}
+
+public extension Decodable {
+    
+    static func readAsJSON(from fileURL: URL) throws -> Self {
+        let data = try Data(contentsOf: fileURL)
+        let decoder = JSONDecoder()
+        
+        return try decoder.decode(Self.self, from: data)
+    }
+
+}
