@@ -11,18 +11,25 @@ final class Cache<Key: Hashable, Value> {
     private let wrapped = NSCache<WrappedKey, Entry>()
     private let dateProvider: () -> Date
     private let entryLifetime: TimeInterval
+    private let keyTracker = KeyTracker()
 
+    var keys: some Collection<Key> { keyTracker.keys }
+    
     init(dateProvider: @escaping () -> Date = Date.init,
          entryLifetime: TimeInterval = 12 * 60 * 60) {
         self.dateProvider = dateProvider
         self.entryLifetime = entryLifetime
+
+        wrapped.delegate = keyTracker
     }
 
     // TODO: consider implementing a cost API
     func insert(_ value: Value, forKey key: Key) {
         let date = dateProvider().addingTimeInterval(entryLifetime)
-        let entry = Entry(value: value, expirationDate: date)
+        let entry = Entry(key: key, value: value, expirationDate: date)
         wrapped.setObject(entry, forKey: WrappedKey(key))
+
+        keyTracker.keys.insert(key)
     }
 
     func value(forKey key: Key) -> Value? {
@@ -80,13 +87,29 @@ private extension Cache {
 
 private extension Cache {
     final class Entry {
+        let key: Key
         let value: Value
         let expirationDate: Date
 
-        init(value: Value, expirationDate: Date) {
+        init(key: Key, value: Value, expirationDate: Date) {
+            self.key = key
             self.value = value
             self.expirationDate = expirationDate
         }
     }
 }
 
+private extension Cache {
+    final class KeyTracker: NSObject, NSCacheDelegate {
+        var keys = Set<Key>()
+
+        func cache(_ cache: NSCache<AnyObject, AnyObject>,
+                   willEvictObject object: Any) {
+            guard let entry = object as? Entry else {
+                return
+            }
+
+            keys.remove(entry.key)
+        }
+    }
+}
