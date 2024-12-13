@@ -34,7 +34,34 @@ struct Test {
             
             #expect(nil == sut.value(forKey: Test.anyKey))
         }
-}
+        
+    }
+    
+    struct subscripting {
+        @Test func returns_nil_for_empty_cache() async throws {
+            let sut = Cache<String, String>()
+            #expect(nil == sut[Test.anyKey])
+        }
+        
+        @Test func returns_inserted_value() async throws {
+            let sut = Cache<String, String>()
+            let expected = "hello"
+            
+            sut[Test.anyKey] = expected
+            
+            #expect(expected == sut[Test.anyKey])
+        }
+        
+        @Test func returns_nil_after_value_removed() async throws {
+            let sut = Cache<String, String>()
+            let expected = "hello"
+            
+            sut[Test.anyKey] = expected
+            sut[Test.anyKey] = nil
+
+            #expect(nil == sut[Test.anyKey])
+        }
+    }
     
     private static let anyKey: String  = "any"
 }
