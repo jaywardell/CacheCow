@@ -238,6 +238,23 @@ struct Test {
         }
     }
     
+    struct clear {
+        @Test func removes_all_keys() async throws {
+            let sut = Cache<String, String>()
+
+            let expectedCount = Int.random(in: 2 ... 20)
+                        
+            for i in 0 ..< expectedCount {
+                sut.insert("", forKey: String(i))
+            }
+            
+            sut.clear()
+            
+            #expect(sut.isEmpty)
+        }
+
+    }
+    
     private static let anyKey: String  = "any"
     
     final class DummyTime {
