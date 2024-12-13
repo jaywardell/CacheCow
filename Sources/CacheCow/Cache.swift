@@ -26,12 +26,16 @@ final class Cache<Key: Hashable, Value> {
     }
 
     // TODO: consider implementing a cost API
+    private func insert(_ entry: Entry) {
+        wrapped.setObject(entry, forKey: WrappedKey(entry.key))
+        keyTracker.keys.insert(entry.key)
+    }
+
     func insert(_ value: Value, forKey key: Key) {
         let date = dateProvider().addingTimeInterval(entryLifetime)
         let entry = Entry(key: key, value: value, expirationDate: date)
-        wrapped.setObject(entry, forKey: WrappedKey(key))
-
-        keyTracker.keys.insert(key)
+ 
+        insert(entry)
     }
 
     private func entry(forKey key: Key) -> Entry? {
