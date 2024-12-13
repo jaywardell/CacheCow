@@ -236,7 +236,7 @@ struct Test {
         let expected = (0 ..< expectedCount).map(String.init)
         
         for i in 0 ..< expectedCount {
-            sut.insert("", for: String(i))
+            sut.insert("\(Int.random(in: -100 ... 100))", for: String(i))
         }
 
         return expected
