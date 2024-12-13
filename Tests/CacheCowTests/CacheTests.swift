@@ -8,7 +8,7 @@
 import Testing
 import Foundation
 
-@testable import CacheCow
+import CacheCow
 
 struct CacheTests {
     

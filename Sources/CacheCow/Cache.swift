@@ -15,7 +15,7 @@ public final class Cache<Key: Hashable, Value> {
     private let keyTracker = KeyTracker()
     
     // MARK: -
-    init(dateProvider: @escaping () -> Date = Date.init,
+    public init(dateProvider: @escaping () -> Date = Date.init,
          entryLifetime: TimeInterval = 12 * 60 * 60,
          countLimit: Int = 0) {
         self.dateProvider = dateProvider
@@ -24,28 +24,28 @@ public final class Cache<Key: Hashable, Value> {
         wrapped.countLimit = countLimit
         wrapped.delegate = keyTracker
     }
-
-    // MARK: - Internal CRUD
+    
     private func insert(_ entry: Entry) {
         wrapped.setObject(entry, forKey: WrappedKey(entry.key))
         keyTracker.keys.insert(entry.key)
     }
-
+    
     private func entry(for key: Key) -> Entry? {
         guard let entry = wrapped.object(forKey: WrappedKey(key)) else {
             return nil
         }
-
+        
         guard dateProvider() < entry.expirationDate else {
             removeValue(for: key)
             return nil
         }
-
+        
         return entry
     }
+}
 
-    // MARK: - Public API
-    
+// MARK: - Public API
+public extension Cache {
     var keys: some Collection<Key> { keyTracker.keys }
     var count: Int { keyTracker.keys.count }
     var isEmpty: Bool { keyTracker.keys.isEmpty }
