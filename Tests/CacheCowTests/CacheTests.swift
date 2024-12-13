@@ -22,7 +22,7 @@ struct Test {
         @Test func returns_one_key_if_one_key_has_been_inserted() async throws {
             let (sut, _) = Test.makeSUT()
 
-            sut.insert("hello", forKey: Test.anyKey)
+            sut.insert("hello", for: Test.anyKey)
             
             #expect(Set(sut.keys) == Set([anyKey]))
         }
@@ -56,7 +56,7 @@ struct Test {
         @Test func returns_one_if_one_key_has_been_inserted() async throws {
             let (sut, _) = Test.makeSUT()
 
-            sut.insert("hello", forKey: Test.anyKey)
+            sut.insert("hello", for: Test.anyKey)
             
             #expect(1 == sut.count)
         }
@@ -116,7 +116,7 @@ struct Test {
             let (sut, _) = Test.makeSUT()
             let expected = "hello"
             
-            sut.insert(expected, forKey: Test.anyKey)
+            sut.insert(expected, for: Test.anyKey)
             
             #expect(expected == sut.value(forKey: Test.anyKey))
         }
@@ -125,8 +125,8 @@ struct Test {
             let (sut, _) = Test.makeSUT()
             let expected = "hello"
             
-            sut.insert(expected, forKey: Test.anyKey)
-            sut.removeValue(forKey: Test.anyKey)
+            sut.insert(expected, for: Test.anyKey)
+            sut.removeValue(for: Test.anyKey)
             
             #expect(nil == sut.value(forKey: Test.anyKey))
         }
@@ -136,7 +136,7 @@ struct Test {
             let (sut, time) = Test.makeSUT(lifetime: lifetime)
             let expected = "hello"
             
-            sut.insert(expected, forKey: Test.anyKey)
+            sut.insert(expected, for: Test.anyKey)
             
             time.increment(by: lifetime - 1)
             
@@ -148,7 +148,7 @@ struct Test {
             let (sut, time) = Test.makeSUT(lifetime: lifetime)
             let expected = "hello"
             
-            sut.insert(expected, forKey: Test.anyKey)
+            sut.insert(expected, for: Test.anyKey)
             
             time.increment(by: lifetime)
             
@@ -160,7 +160,7 @@ struct Test {
             let (sut, time) = Test.makeSUT(lifetime: lifetime)
             let expected = "hello"
             
-            sut.insert(expected, forKey: Test.anyKey)
+            sut.insert(expected, for: Test.anyKey)
             
             time.increment(by: lifetime + 1)
             
@@ -223,7 +223,7 @@ struct Test {
         let expected = (0 ..< expectedCount).map(String.init)
         
         for i in 0 ..< expectedCount {
-            sut.insert("", forKey: String(i))
+            sut.insert("", for: String(i))
         }
 
         return expected

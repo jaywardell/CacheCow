@@ -31,20 +31,20 @@ final class Cache<Key: Hashable, Value> {
         keyTracker.keys.insert(entry.key)
     }
 
-    func insert(_ value: Value, forKey key: Key) {
+    func insert(_ value: Value, for key: Key) {
         let date = dateProvider().addingTimeInterval(entryLifetime)
         let entry = Entry(key: key, value: value, expirationDate: date)
  
         insert(entry)
     }
 
-    private func entry(forKey key: Key) -> Entry? {
+    private func entry(for key: Key) -> Entry? {
         guard let entry = wrapped.object(forKey: WrappedKey(key)) else {
             return nil
         }
 
         guard dateProvider() < entry.expirationDate else {
-            removeValue(forKey: key)
+            removeValue(for: key)
             return nil
         }
 
@@ -53,10 +53,10 @@ final class Cache<Key: Hashable, Value> {
 
     func value(forKey key: Key) -> Value? {
 
-        return entry(forKey: key)?.value
+        return entry(for: key)?.value
     }
 
-    func removeValue(forKey key: Key) {
+    func removeValue(for key: Key) {
         wrapped.removeObject(forKey: WrappedKey(key))
     }
     
@@ -72,11 +72,11 @@ extension Cache {
             guard let value = newValue else {
                 // If nil was assigned using our subscript,
                 // then we remove any value for that key:
-                removeValue(forKey: key)
+                removeValue(for: key)
                 return
             }
 
-            insert(value, forKey: key)
+            insert(value, for: key)
         }
     }
 }
