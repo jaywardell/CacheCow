@@ -45,10 +45,10 @@ public final class Cache<Key: Hashable, Value> {
 }
 
 // MARK: - Public API
-public extension Cache {
-    var keys: some Collection<Key> { keyTracker.keys }
-    var count: Int { keyTracker.keys.count }
-    var isEmpty: Bool { keyTracker.keys.isEmpty }
+extension Cache: Caching {
+    public var keys: some Collection<Key> { keyTracker.keys }
+    public var count: Int { keyTracker.keys.count }
+    public var isEmpty: Bool { keyTracker.keys.isEmpty }
 
     /// The maximum number of objects the cache should hold.
     ///
@@ -56,8 +56,8 @@ public extension Cache {
     /// returns the countLimit for the wrapped NSCache.
     ///
     /// Note that this may or may not be enforced by NSCache.
-    var countLimit: Int { wrapped.countLimit }
-    func insert(_ value: Value, for key: Key) {
+    public var countLimit: Int { wrapped.countLimit }
+    public func insert(_ value: Value, for key: Key) {
         let date = dateProvider().addingTimeInterval(entryLifetime)
         let entry = Entry(key: key, value: value, expirationDate: date)
  
@@ -65,20 +65,20 @@ public extension Cache {
     }
 
 
-    func value(for key: Key) -> Value? {
+    public func value(for key: Key) -> Value? {
 
         return entry(for: key)?.value
     }
 
-    func removeValue(for key: Key) {
+    public func removeValue(for key: Key) {
         wrapped.removeObject(forKey: WrappedKey(key))
     }
     
-    func clear() {
+    public func clear() {
         wrapped.removeAllObjects()
     }
 
-    subscript(key: Key) -> Value? {
+    public subscript(key: Key) -> Value? {
         get { return value(for: key) }
         set {
             guard let value = newValue else {
