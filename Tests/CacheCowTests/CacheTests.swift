@@ -1,5 +1,5 @@
 //
-//  Test.swift
+//  CacheTests.swift
 //  CacheCow
 //
 //  Created by Joseph Wardell on 12/13/24.
@@ -10,35 +10,35 @@ import Foundation
 
 @testable import CacheCow
 
-struct Test {
+struct CacheTests {
     
     struct keys {
         @Test func returns_empty_if_no_inserts_have_happened() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
             #expect(sut.keys.isEmpty)
         }
 
         @Test func returns_one_key_if_one_key_has_been_inserted() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
-            sut.insert("hello", for: Test.anyKey)
+            sut.insert("hello", for: CacheTests.anyKey)
             
             #expect(Set(sut.keys) == Set([anyKey]))
         }
 
         @Test func returns_all_inserted_keys() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
-            let expected = Test.insertSomeEntries(into: sut)
+            let expected = CacheTests.insertSomeEntries(into: sut)
             
             #expect(Set(sut.keys) == Set(expected))
         }
         
         @Test func returns_empty_after_all_keys_removed() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
-            Test.insertSomeEntries(into: sut)
+            CacheTests.insertSomeEntries(into: sut)
             sut.clear()
             
             #expect(sut.keys.isEmpty)
@@ -48,31 +48,31 @@ struct Test {
 
     struct count {
         @Test func returns_0_if_no_inserts_have_happened() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
             #expect(0 == sut.count)
         }
 
         @Test func returns_one_if_one_key_has_been_inserted() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
-            sut.insert("hello", for: Test.anyKey)
+            sut.insert("hello", for: CacheTests.anyKey)
             
             #expect(1 == sut.count)
         }
 
         @Test func returns_count_of_all_inserted_keys() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
-            let expected = Test.insertSomeEntries(into: sut)
+            let expected = CacheTests.insertSomeEntries(into: sut)
 
             #expect(expected.count == sut.count)
         }
         
         @Test func returns_0_after_all_keys_removed() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
-            Test.insertSomeEntries(into: sut)
+            CacheTests.insertSomeEntries(into: sut)
             sut.clear()
             
             #expect(0 == sut.count)
@@ -82,23 +82,23 @@ struct Test {
 
     struct isEmpty {
         @Test func returns_true_if_no_inserts_have_happened() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
             #expect(sut.isEmpty)
         }
 
         @Test func returns_false_if_keys_have_been_inserted() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
-            Test.insertSomeEntries(into: sut)
+            CacheTests.insertSomeEntries(into: sut)
 
             #expect(!sut.isEmpty)
         }
         
         @Test func returns_true_after_all_keys_removed() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
-            Test.insertSomeEntries(into: sut)
+            CacheTests.insertSomeEntries(into: sut)
             sut.clear()
             
             #expect(sut.isEmpty)
@@ -108,98 +108,98 @@ struct Test {
 
     struct valueForKey {
         @Test func returns_nil_for_empty_cache() async throws {
-            let (sut, _) = Test.makeSUT()
-            #expect(nil == sut.value(forKey: Test.anyKey))
+            let (sut, _) = CacheTests.makeSUT()
+            #expect(nil == sut.value(forKey: CacheTests.anyKey))
         }
         
         @Test func returns_inserted_value() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
             let expected = "hello"
             
-            sut.insert(expected, for: Test.anyKey)
+            sut.insert(expected, for: CacheTests.anyKey)
             
-            #expect(expected == sut.value(forKey: Test.anyKey))
+            #expect(expected == sut.value(forKey: CacheTests.anyKey))
         }
         
         @Test func returns_nil_after_value_removed() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
             let expected = "hello"
             
-            sut.insert(expected, for: Test.anyKey)
-            sut.removeValue(for: Test.anyKey)
+            sut.insert(expected, for: CacheTests.anyKey)
+            sut.removeValue(for: CacheTests.anyKey)
             
-            #expect(nil == sut.value(forKey: Test.anyKey))
+            #expect(nil == sut.value(forKey: CacheTests.anyKey))
         }
         
         @Test func returns_inserted_value_before_entry_lifetime_expended() async throws {
             let lifetime = TimeInterval(60)
-            let (sut, time) = Test.makeSUT(lifetime: lifetime)
+            let (sut, time) = CacheTests.makeSUT(lifetime: lifetime)
             let expected = "hello"
             
-            sut.insert(expected, for: Test.anyKey)
+            sut.insert(expected, for: CacheTests.anyKey)
             
             time.increment(by: lifetime - 1)
             
-            #expect(expected == sut.value(forKey: Test.anyKey))
+            #expect(expected == sut.value(forKey: CacheTests.anyKey))
         }
 
         @Test func returns_nil_when_entry_lifetime_expended() async throws {
             let lifetime = TimeInterval(60)
-            let (sut, time) = Test.makeSUT(lifetime: lifetime)
+            let (sut, time) = CacheTests.makeSUT(lifetime: lifetime)
             let expected = "hello"
             
-            sut.insert(expected, for: Test.anyKey)
+            sut.insert(expected, for: CacheTests.anyKey)
             
             time.increment(by: lifetime)
             
-            #expect(nil == sut.value(forKey: Test.anyKey))
+            #expect(nil == sut.value(forKey: CacheTests.anyKey))
         }
 
         @Test func returns_nil_after_entry_lifetime_expended() async throws {
             let lifetime = TimeInterval(60)
-            let (sut, time) = Test.makeSUT(lifetime: lifetime)
+            let (sut, time) = CacheTests.makeSUT(lifetime: lifetime)
             let expected = "hello"
             
-            sut.insert(expected, for: Test.anyKey)
+            sut.insert(expected, for: CacheTests.anyKey)
             
             time.increment(by: lifetime + 1)
             
-            #expect(nil == sut.value(forKey: Test.anyKey))
+            #expect(nil == sut.value(forKey: CacheTests.anyKey))
         }
 
     }
     
     struct subscripting {
         @Test func returns_nil_for_empty_cache() async throws {
-            let (sut, _) = Test.makeSUT()
-            #expect(nil == sut[Test.anyKey])
+            let (sut, _) = CacheTests.makeSUT()
+            #expect(nil == sut[CacheTests.anyKey])
         }
         
         @Test func returns_inserted_value() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
             let expected = "hello"
             
-            sut[Test.anyKey] = expected
+            sut[CacheTests.anyKey] = expected
             
-            #expect(expected == sut[Test.anyKey])
+            #expect(expected == sut[CacheTests.anyKey])
         }
         
         @Test func returns_nil_after_value_removed() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
             let expected = "hello"
             
-            sut[Test.anyKey] = expected
-            sut[Test.anyKey] = nil
+            sut[CacheTests.anyKey] = expected
+            sut[CacheTests.anyKey] = nil
 
-            #expect(nil == sut[Test.anyKey])
+            #expect(nil == sut[CacheTests.anyKey])
         }
     }
     
     struct clear {
         @Test func removes_all_keys() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
 
-            Test.insertSomeEntries(into: sut)
+            CacheTests.insertSomeEntries(into: sut)
             sut.clear()
             
             #expect(sut.isEmpty)
@@ -226,7 +226,7 @@ struct Test {
     }
     struct Encoding {
         @Test func round_trip_for_empty_cache() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
             let encoder = JSONEncoder()
             let decoder = JSONDecoder()
             
@@ -237,7 +237,7 @@ struct Test {
         }
 
         @Test func round_trip_for_cache_with_objects() async throws {
-            let (sut, _) = Test.makeSUT()
+            let (sut, _) = CacheTests.makeSUT()
             let encoder = JSONEncoder()
             let decoder = JSONDecoder()
             
