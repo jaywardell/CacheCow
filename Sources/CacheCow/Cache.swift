@@ -34,18 +34,22 @@ final class Cache<Key: Hashable, Value> {
         keyTracker.keys.insert(key)
     }
 
-    func value(forKey key: Key) -> Value? {
+    private func entry(forKey key: Key) -> Entry? {
         guard let entry = wrapped.object(forKey: WrappedKey(key)) else {
             return nil
         }
 
         guard dateProvider() < entry.expirationDate else {
-            // Discard values that have expired
             removeValue(forKey: key)
             return nil
         }
 
-        return entry.value
+        return entry
+    }
+
+    func value(forKey key: Key) -> Value? {
+
+        return entry(forKey: key)?.value
     }
 
     func removeValue(forKey key: Key) {
