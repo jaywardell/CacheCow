@@ -29,13 +29,8 @@ struct Test {
 
         @Test func returns_all_inserted_keys() async throws {
             let sut = Cache<String, String>()
-            let expectedCount = Int.random(in: 2 ... 20)
-            
-            let expected = (0 ..< expectedCount).map(String.init)
-            
-            for i in 0 ..< expectedCount {
-                sut.insert("", forKey: String(i))
-            }
+
+            let expected = Test.insertSomeEntries(into: sut)
             
             #expect(Set(sut.keys) == Set(expected))
         }
@@ -43,17 +38,8 @@ struct Test {
         @Test func returns_empty_after_all_keys_removed() async throws {
             let sut = Cache<String, String>()
 
-            let expectedCount = Int.random(in: 2 ... 20)
-            
-            let expected = (0 ..< expectedCount).map(String.init)
-            
-            for i in 0 ..< expectedCount {
-                sut.insert("", forKey: String(i))
-            }
-
-            for key in expected {
-                sut.removeValue(forKey: key)
-            }
+            Test.insertSomeEntries(into: sut)
+            sut.clear()
             
             #expect(sut.keys.isEmpty)
         }
@@ -77,31 +63,17 @@ struct Test {
 
         @Test func returns_count_of_all_inserted_keys() async throws {
             let sut = Cache<String, String>()
-            let expectedCount = Int.random(in: 2 ... 20)
-            
-            let expected = (0 ..< expectedCount).map(String.init)
-            
-            for i in 0 ..< expectedCount {
-                sut.insert("", forKey: String(i))
-            }
-            
-            #expect(expectedCount == sut.count)
+
+            let expected = Test.insertSomeEntries(into: sut)
+
+            #expect(expected.count == sut.count)
         }
         
         @Test func returns_0_after_all_keys_removed() async throws {
             let sut = Cache<String, String>()
 
-            let expectedCount = Int.random(in: 2 ... 20)
-            
-            let expected = (0 ..< expectedCount).map(String.init)
-            
-            for i in 0 ..< expectedCount {
-                sut.insert("", forKey: String(i))
-            }
-
-            for key in expected {
-                sut.removeValue(forKey: key)
-            }
+            Test.insertSomeEntries(into: sut)
+            sut.clear()
             
             #expect(0 == sut.count)
         }
@@ -117,29 +89,17 @@ struct Test {
 
         @Test func returns_false_if_keys_have_been_inserted() async throws {
             let sut = Cache<String, String>()
-            let expectedCount = Int.random(in: 1 ... 20)
-                        
-            for i in 0 ..< expectedCount {
-                sut.insert("", forKey: String(i))
-            }
-            
+
+            Test.insertSomeEntries(into: sut)
+
             #expect(!sut.isEmpty)
         }
         
         @Test func returns_true_after_all_keys_removed() async throws {
             let sut = Cache<String, String>()
 
-            let expectedCount = Int.random(in: 2 ... 20)
-            
-            let expected = (0 ..< expectedCount).map(String.init)
-            
-            for i in 0 ..< expectedCount {
-                sut.insert("", forKey: String(i))
-            }
-
-            for key in expected {
-                sut.removeValue(forKey: key)
-            }
+            Test.insertSomeEntries(into: sut)
+            sut.clear()
             
             #expect(sut.isEmpty)
         }
@@ -242,12 +202,7 @@ struct Test {
         @Test func removes_all_keys() async throws {
             let sut = Cache<String, String>()
 
-            let expectedCount = Int.random(in: 2 ... 20)
-                        
-            for i in 0 ..< expectedCount {
-                sut.insert("", forKey: String(i))
-            }
-            
+            Test.insertSomeEntries(into: sut)
             sut.clear()
             
             #expect(sut.isEmpty)
@@ -255,7 +210,21 @@ struct Test {
 
     }
     
+    // MARK: - Helpers
     private static let anyKey: String  = "any"
+    
+    @discardableResult
+    static func insertSomeEntries(into sut: Cache<String, String>) -> [String] {
+        let expectedCount = Int.random(in: 2 ... 20)
+        
+        let expected = (0 ..< expectedCount).map(String.init)
+        
+        for i in 0 ..< expectedCount {
+            sut.insert("", forKey: String(i))
+        }
+
+        return expected
+    }
     
     final class DummyTime {
         var time: Date
