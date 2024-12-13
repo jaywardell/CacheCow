@@ -14,7 +14,8 @@ final class Cache<Key: Hashable, Value> {
     private let keyTracker = KeyTracker()
 
     var keys: some Collection<Key> { keyTracker.keys }
-    var count: Int { keys.count }
+    var count: Int { keyTracker.keys.count }
+    var isEmpty: Bool { keyTracker.keys.isEmpty }
     
     init(dateProvider: @escaping () -> Date = Date.init,
          entryLifetime: TimeInterval = 12 * 60 * 60) {

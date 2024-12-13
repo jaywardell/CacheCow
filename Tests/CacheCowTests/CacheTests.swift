@@ -107,6 +107,45 @@ struct Test {
         }
 
     }
+
+    struct isEmpty {
+        @Test func returns_true_if_no_inserts_have_happened() async throws {
+            let sut = Cache<String, String>()
+
+            #expect(sut.isEmpty)
+        }
+
+        @Test func returns_false_if_keys_have_been_inserted() async throws {
+            let sut = Cache<String, String>()
+            let expectedCount = Int.random(in: 1 ... 20)
+                        
+            for i in 0 ..< expectedCount {
+                sut.insert("", forKey: String(i))
+            }
+            
+            #expect(!sut.isEmpty)
+        }
+        
+        @Test func returns_true_after_all_keys_removed() async throws {
+            let sut = Cache<String, String>()
+
+            let expectedCount = Int.random(in: 2 ... 20)
+            
+            let expected = (0 ..< expectedCount).map(String.init)
+            
+            for i in 0 ..< expectedCount {
+                sut.insert("", forKey: String(i))
+            }
+
+            for key in expected {
+                sut.removeValue(forKey: key)
+            }
+            
+            #expect(sut.isEmpty)
+        }
+
+    }
+
     struct valueForKey {
         @Test func returns_nil_for_empty_cache() async throws {
             let sut = Cache<String, String>()
