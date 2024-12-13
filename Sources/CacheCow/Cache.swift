@@ -12,11 +12,8 @@ final class Cache<Key: Hashable, Value> {
     private let dateProvider: () -> Date
     private let entryLifetime: TimeInterval
     private let keyTracker = KeyTracker()
-
-    var keys: some Collection<Key> { keyTracker.keys }
-    var count: Int { keyTracker.keys.count }
-    var isEmpty: Bool { keyTracker.keys.isEmpty }
     
+    // MARK: -
     init(dateProvider: @escaping () -> Date = Date.init,
          entryLifetime: TimeInterval = 12 * 60 * 60) {
         self.dateProvider = dateProvider
@@ -25,17 +22,10 @@ final class Cache<Key: Hashable, Value> {
         wrapped.delegate = keyTracker
     }
 
-    // TODO: consider implementing a cost API
+    // MARK: - Internal CRUD
     private func insert(_ entry: Entry) {
         wrapped.setObject(entry, forKey: WrappedKey(entry.key))
         keyTracker.keys.insert(entry.key)
-    }
-
-    func insert(_ value: Value, for key: Key) {
-        let date = dateProvider().addingTimeInterval(entryLifetime)
-        let entry = Entry(key: key, value: value, expirationDate: date)
- 
-        insert(entry)
     }
 
     private func entry(for key: Key) -> Entry? {
@@ -51,6 +41,20 @@ final class Cache<Key: Hashable, Value> {
         return entry
     }
 
+    // MARK: - Public API
+    
+    var keys: some Collection<Key> { keyTracker.keys }
+    var count: Int { keyTracker.keys.count }
+    var isEmpty: Bool { keyTracker.keys.isEmpty }
+
+    func insert(_ value: Value, for key: Key) {
+        let date = dateProvider().addingTimeInterval(entryLifetime)
+        let entry = Entry(key: key, value: value, expirationDate: date)
+ 
+        insert(entry)
+    }
+
+
     func value(forKey key: Key) -> Value? {
 
         return entry(for: key)?.value
@@ -63,9 +67,7 @@ final class Cache<Key: Hashable, Value> {
     func clear() {
         wrapped.removeAllObjects()
     }
-}
 
-extension Cache {
     subscript(key: Key) -> Value? {
         get { return value(forKey: key) }
         set {
@@ -80,6 +82,8 @@ extension Cache {
         }
     }
 }
+
+// MARK: - Private Types
 
 private extension Cache {
     final class WrappedKey: NSObject {
@@ -97,9 +101,8 @@ private extension Cache {
             return value.key == key
         }
     }
-}
 
-private extension Cache {
+    // MARK: -
     final class Entry {
         let key: Key
         let value: Value
@@ -111,9 +114,8 @@ private extension Cache {
             self.expirationDate = expirationDate
         }
     }
-}
 
-private extension Cache {
+    // MARK: -
     final class KeyTracker: NSObject, NSCacheDelegate {
         var keys = Set<Key>()
 
