@@ -218,6 +218,22 @@ struct Test {
             
             #expect(decoded.isEmpty)
         }
+
+        @Test func round_trip_for_cache_with_objects() async throws {
+            let (sut, _) = Test.makeSUT()
+            let encoder = JSONEncoder()
+            let decoder = JSONDecoder()
+            
+            insertSomeEntries(into: sut)
+            
+            let data = try encoder.encode(sut)
+            let decoded = try decoder.decode(Cache<String, String>.self, from: data)
+            
+            #expect(Set(sut.keys) == Set(decoded.keys))
+            for key in decoded.keys {
+                #expect(sut.value(forKey: key) == decoded.value(forKey: key))
+            }
+        }
     }
     
     // MARK: - Helpers

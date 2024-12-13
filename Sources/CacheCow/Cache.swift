@@ -131,18 +131,18 @@ private extension Cache {
     }
 }
 
+extension Cache.Entry: Codable where Key: Codable, Value: Codable {}
 extension Cache: Codable where Key: Codable, Value: Codable {
     convenience init(from decoder: Decoder) throws {
         self.init()
-//
-//        let container = try decoder.singleValueContainer()
-//        let entries = try container.decode([Entry].self)
-//        entries.forEach(insert)
+
+        let container = try decoder.singleValueContainer()
+        let entries = try container.decode([Entry].self)
+        entries.forEach(insert)
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        try container.encode(true)
-//        try container.encode(keyTracker.keys.compactMap(entry))
+        try container.encode(keyTracker.keys.compactMap { entry(for: $0) } )
     }
 }
