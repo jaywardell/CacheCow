@@ -177,7 +177,7 @@ public extension Cache where Key: Codable, Value: Codable {
     }
     
     
-    static func readFromFile(named name: String, using fileManager: FileManager) throws -> Cache {
+    static func readFromFile(named name: String, using fileManager: FileManager = .default) throws -> Cache {
         let fileURL = cacheURL(named: name, using: fileManager)
         return try readAsJSON(from: fileURL)
     }
