@@ -8,6 +8,7 @@
 import Foundation
 
 public protocol FileSystemBackedArchiver {
+    var keys: any Collection<Int> { get }
     func archive(_ data: Data, for key: Int)
 }
 
@@ -66,7 +67,7 @@ extension FileSystemBackedCache: Caching {
     }
     
     public var isEmpty: Bool {
-        true
+        archiver.keys.isEmpty
     }
     
     public func clear() {

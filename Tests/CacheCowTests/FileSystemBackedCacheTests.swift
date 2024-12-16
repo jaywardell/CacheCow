@@ -115,13 +115,13 @@ struct FileSystemBackedCacheTests {
             #expect(sut.isEmpty)
         }
 
-//        @Test func returns_false_if_keys_have_been_inserted() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
-//
-//            #expect(!sut.isEmpty)
-//        }
+        @Test func returns_false_if_keys_have_been_inserted() async throws {
+            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
+
+            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
+
+            #expect(!sut.isEmpty)
+        }
         
 //        @Test func returns_true_after_all_keys_removed() async throws {
 //            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
@@ -338,8 +338,13 @@ struct FileSystemBackedCacheTests {
     }
     
     private final class DummyArchiver: FileSystemBackedArchiver {
+        
         private(set) var insertCount = 0
         private(set) var inserted = [Int:Data]()
+        
+        var keys: any Collection<Int> {
+            inserted.keys
+        }
         
         func archive(_ data: Data, for key: Int) {
             insertCount += 1
