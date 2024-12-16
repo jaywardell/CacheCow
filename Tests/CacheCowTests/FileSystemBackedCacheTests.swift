@@ -171,31 +171,31 @@ struct FileSystemBackedCacheTests {
         }
     }
     
-//    struct subscripting {
-//        @Test func returns_nil_for_empty_cache() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//            #expect(nil == sut[FileSystemBackedCacheTests.anyKey])
-//        }
-//        
-//        @Test func returns_inserted_value() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//            let expected = "hello"
-//            
-//            sut[FileSystemBackedCacheTests.anyKey] = expected
-//            
-//            #expect(expected == sut[FileSystemBackedCacheTests.anyKey])
-//        }
-//        
-//        @Test func returns_nil_after_value_removed() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//            let expected = "hello"
-//            
-//            sut[FileSystemBackedCacheTests.anyKey] = expected
-//            sut[FileSystemBackedCacheTests.anyKey] = nil
-//
-//            #expect(nil == sut[FileSystemBackedCacheTests.anyKey])
-//        }
-//    }
+    struct subscripting {
+        @Test func returns_nil_for_empty_cache() async throws {
+            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
+            #expect(nil == sut[FileSystemBackedCacheTests.anyKey])
+        }
+        
+        @Test func returns_inserted_value() async throws {
+            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
+            let expected = "hello"
+            
+            sut[FileSystemBackedCacheTests.anyKey] = expected
+            
+            #expect(expected == sut[FileSystemBackedCacheTests.anyKey])
+        }
+        
+        @Test func returns_nil_after_value_removed() async throws {
+            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
+            let expected = "hello"
+            
+            sut[FileSystemBackedCacheTests.anyKey] = expected
+            sut[FileSystemBackedCacheTests.anyKey] = nil
+
+            #expect(nil == sut[FileSystemBackedCacheTests.anyKey])
+        }
+    }
     
     struct clear {
         @Test func calls_removeAll_on_archiver() async throws {

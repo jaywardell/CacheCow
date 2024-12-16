@@ -52,16 +52,20 @@ extension FileSystemBackedCache: Caching {
     }
     
     public func removeValue(for key: Key) {
-//        fatalError(#function)
         archiver.delete(key: key.hashValue)
     }
     
     public subscript(key: Key) -> Value? {
         get {
-            fatalError(#function)
+            value(for: key)
         }
         set {
-            fatalError(#function)
+            if let newValue {
+                insert(newValue, for: key)
+            }
+            else {
+                removeValue(for: key)
+            }
         }
     }
     
