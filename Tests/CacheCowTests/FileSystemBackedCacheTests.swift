@@ -101,7 +101,7 @@ struct FileSystemBackedCacheTests {
             let (sut, _, archiver) = FileSystemBackedCacheTests.makeSUT()
 
             FileSystemBackedCacheTests.insertSomeEntries(into: sut)
-            archiver.removeAll()
+            archiver.deleteAll()
             
             #expect(0 == sut.count)
         }
@@ -127,7 +127,7 @@ struct FileSystemBackedCacheTests {
             let (sut, _, archiver) = FileSystemBackedCacheTests.makeSUT()
 
             FileSystemBackedCacheTests.insertSomeEntries(into: sut)
-            archiver.removeAll()
+            archiver.deleteAll()
             
             #expect(sut.isEmpty)
         }
@@ -325,7 +325,7 @@ struct FileSystemBackedCacheTests {
             inserted[key] = data
         }
         
-        func removeAll() {
+        func deleteAll() {
             removeAllCount += 1
             inserted.removeAll()
         }

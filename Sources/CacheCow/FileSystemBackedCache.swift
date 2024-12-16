@@ -12,7 +12,7 @@ public protocol FileSystemBackedArchiver {
     func archive(_ data: Data, for key: Int)
     func data(at key: Int) -> Data?
     func delete(key: Int)
-    func removeAll()
+    func deleteAll()
 }
 
 public final class FileSystemBackedCache<Key: Hashable, Value> {
@@ -75,7 +75,7 @@ extension FileSystemBackedCache: Caching {
     }
     
     public func clear() {
-        archiver.removeAll()
+        archiver.deleteAll()
     }
     
     
