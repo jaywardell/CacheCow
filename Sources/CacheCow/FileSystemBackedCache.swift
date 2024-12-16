@@ -7,15 +7,20 @@
 
 import Foundation
 
+public protocol FileSystemBackedArchiver {}
+
 public final class FileSystemBackedCache<Key: Hashable, Value: Codable> {
     
     private let dateProvider: () -> Date
     private let entryLifetime: TimeInterval?
+    private let archiver: FileSystemBackedArchiver
     
     public init(dateProvider: @escaping () -> Date,
+                archiver: FileSystemBackedArchiver,
                 entryLifetime: TimeInterval? = nil) {
         
         self.dateProvider = dateProvider
+        self.archiver = archiver
         self.entryLifetime = entryLifetime
     }
 }

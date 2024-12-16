@@ -82,7 +82,7 @@ struct FileSystemBackedCacheTests {
 
     struct isEmpty {
         @Test func returns_true_if_no_inserts_have_happened() async throws {
-            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 
             #expect(sut.isEmpty)
         }
@@ -260,9 +260,19 @@ struct FileSystemBackedCacheTests {
     
     // MARK: - Helpers
     
-    private static func makeSUT(lifetime: TimeInterval = 60) -> (FileSystemBackedCache<String, String>, DummyTime) {
+    private static func makeSUT(lifetime: TimeInterval = 60) -> (FileSystemBackedCache<String, String>, DummyTime, FileSystemBackedArchiver) {
         let time = DummyTime()
-        return (FileSystemBackedCache<String, String>(entryLifetime: lifetime), time)
+        let archiver: FileSystemBackedArchiver = DummyArchiver()
+        return (
+            FileSystemBackedCache<String,
+            String>(
+                dateProvider: time.currentTime,
+                archiver: archiver,
+                entryLifetime: lifetime
+            ),
+            time,
+            archiver
+        )
     }
     
     private static let anyKey: String  = "any"
@@ -295,5 +305,9 @@ struct FileSystemBackedCacheTests {
             print(#function, time)
             return time
         }
+    }
+    
+    private final class DummyArchiver: FileSystemBackedArchiver {
+        
     }
 }
