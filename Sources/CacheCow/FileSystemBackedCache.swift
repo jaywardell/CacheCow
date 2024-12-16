@@ -19,20 +19,17 @@ public final class FileSystemBackedCache<Key: Hashable, Value> {
     private let encode: (Value) -> Data?
     private let decode: (Data) -> Value?
     private let dateProvider: () -> Date
-    private let entryLifetime: TimeInterval?
     private let archiver: FileSystemBackedArchiver
     
     public init(encode: @escaping (Value) -> Data?,
                 decode: @escaping (Data) -> Value?,
                 dateProvider: @escaping () -> Date,
-                archiver: FileSystemBackedArchiver,
-                entryLifetime: TimeInterval? = nil) {
+                archiver: FileSystemBackedArchiver) {
         
         self.encode = encode
         self.decode = decode
         self.dateProvider = dateProvider
         self.archiver = archiver
-        self.entryLifetime = entryLifetime
     }
 }
 

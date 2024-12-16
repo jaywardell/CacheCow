@@ -295,8 +295,7 @@ struct FileSystemBackedCacheTests {
                 encode: { $0.data(using: .utf8) },
                 decode: { String(data: $0, encoding: .utf8) },
                 dateProvider: time.currentTime,
-                archiver: archiver,
-                entryLifetime: lifetime
+                archiver: archiver
             ),
             time,
             archiver
