@@ -10,22 +10,11 @@ import Foundation
 public protocol Caching {
     associatedtype Key
     associatedtype Value
-    
-    associatedtype Keys: Collection<Key>
-    
-    init(dateProvider: @escaping () -> Date,
-         entryLifetime: TimeInterval,
-         countLimit: Int)
-    
-    var keys: Keys { get }
+            
     var count: Int { get }
     var isEmpty: Bool { get }
 
-    /// The maximum number of objects the cache should hold.
-    /// Note that this may or may not be enforced by the type, depending on underlying implementation.
-    var countLimit: Int { get }
     func insert(_ value: Value, for key: Key)
-
 
     func value(for key: Key) -> Value?
 
