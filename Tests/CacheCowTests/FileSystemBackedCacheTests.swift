@@ -40,40 +40,6 @@ struct FileSystemBackedCacheTests {
         }
     }
     
-//    struct keys {
-//        @Test func returns_empty_if_no_inserts_have_happened() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            #expect(sut.keys.isEmpty)
-//        }
-//
-//        @Test func returns_one_key_if_one_key_has_been_inserted() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            sut.insert("hello", for: FileSystemBackedCacheTests.anyKey)
-//            
-//            #expect(Set(sut.keys) == Set([anyKey]))
-//        }
-//
-//        @Test func returns_all_inserted_keys() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            let expected = FileSystemBackedCacheTests.insertSomeEntries(into: sut)
-//            
-//            #expect(Set(sut.keys) == Set(expected))
-//        }
-//        
-//        @Test func returns_empty_after_all_keys_removed() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
-//            sut.clear()
-//            
-//            #expect(sut.keys.isEmpty)
-//        }
-//
-//    }
-
     struct count {
         @Test func returns_0_if_no_inserts_have_happened() async throws {
             let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
@@ -207,58 +173,7 @@ struct FileSystemBackedCacheTests {
             #expect(1 == archiver.removeAllCount)
         }
     }
-    
-
-//    struct Encoding {
-//        @Test func round_trip_for_empty_cache() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//            let encoder = JSONEncoder()
-//            let decoder = JSONDecoder()
-//            
-//            let data = try encoder.encode(sut)
-//            let decoded = try decoder.decode(Cache<String, String>.self, from: data)
-//            
-//            #expect(decoded.isEmpty)
-//        }
-//
-//        @Test func round_trip_for_cache_with_objects() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//            let encoder = JSONEncoder()
-//            let decoder = JSONDecoder()
-//            
-//            insertSomeEntries(into: sut)
-//            
-//            let data = try encoder.encode(sut)
-//            let decoded = try decoder.decode(Cache<String, String>.self, from: data)
-//            
-//            #expect(Set(sut.keys) == Set(decoded.keys))
-//            for key in decoded.keys {
-//                #expect(sut.value(for: key) == decoded.value(for: key))
-//            }
-//        }
-//    }
-    
-//    struct Saving {
-//        
-//        @Test func saves_and_retrieves_from_disk() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//            let filename = #function
-//            
-//            insertSomeEntries(into: sut)
-//            
-//            let fm = FileManager()
-//            let savedTo = try sut.saveToFile(named: filename, using: fm)
-//            let retrieved = try Cache<String, String>.readFromFile(named: filename, using: fm)
-//            
-//            #expect(Set(sut.keys) == Set(retrieved.keys))
-//            for key in retrieved.keys {
-//                #expect(sut.value(for: key) == retrieved.value(for: key))
-//            }
-//
-//            try fm.removeItem(at: savedTo)
-//        }
-//    }
-    
+        
     // MARK: - Helpers
     
     private static func makeSUT(lifetime: TimeInterval = 60) -> (FileSystemBackedCache<String, String>, DummyTime, DummyArchiver) {
