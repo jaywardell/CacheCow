@@ -10,6 +10,7 @@ import Foundation
 public protocol FileSystemBackedArchiver {
     var keys: any Collection<Int> { get }
     func archive(_ data: Data, for key: Int)
+    func data(at key: Int) -> Data?
     func removeAll()
 }
 
@@ -46,7 +47,10 @@ extension FileSystemBackedCache: Caching {
     }
     
     public func value(for key: Key) -> Value? {
-        fatalError(#function)
+
+        guard let archived = archiver.data(at: key.hashValue) else { return nil }
+        
+        return decode(archived)
     }
     
     public func removeValue(for key: Key) {

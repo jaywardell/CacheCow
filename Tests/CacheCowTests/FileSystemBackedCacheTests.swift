@@ -133,21 +133,21 @@ struct FileSystemBackedCacheTests {
         }
     }
 
-//    struct valueForKey {
-//        @Test func returns_nil_for_empty_cache() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
-//            #expect(nil == sut.value(for: FileSystemBackedCacheTests.anyKey))
-//        }
-//        
-//        @Test func returns_inserted_value() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
-//            let expected = "hello"
-//            
-//            sut.insert(expected, for: FileSystemBackedCacheTests.anyKey)
-//            
-//            #expect(expected == sut.value(for: FileSystemBackedCacheTests.anyKey))
-//        }
-//        
+    struct valueForKey {
+        @Test func returns_nil_for_empty_cache() async throws {
+            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
+            #expect(nil == sut.value(for: FileSystemBackedCacheTests.anyKey))
+        }
+        
+        @Test func returns_inserted_value() async throws {
+            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
+            let expected = "hello"
+            
+            sut.insert(expected, for: FileSystemBackedCacheTests.anyKey)
+            
+            #expect(expected == sut.value(for: FileSystemBackedCacheTests.anyKey))
+        }
+        
 //        @Test func returns_nil_after_value_removed() async throws {
 //            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
 //            let expected = "hello"
@@ -194,7 +194,7 @@ struct FileSystemBackedCacheTests {
 //            #expect(nil == sut.value(for: FileSystemBackedCacheTests.anyKey))
 //        }
 //
-//    }
+    }
     
 //    struct subscripting {
 //        @Test func returns_nil_for_empty_cache() async throws {
@@ -353,6 +353,10 @@ struct FileSystemBackedCacheTests {
         func removeAll() {
             removeAllCount += 1
             inserted.removeAll()
+        }
+        
+        func data(at key: Int) -> Data? {
+            inserted[key]
         }
     }
 }
