@@ -7,7 +7,7 @@
 
 import Foundation
 
-public actor FileSystemBackedCache<Key: Hashable, Value: Codable> {
+public final class FileSystemBackedCache<Key: Hashable, Value: Codable> {
     
 //    private let dateProvider: () -> Date
     private let entryLifetime: TimeInterval?
@@ -23,19 +23,19 @@ public actor FileSystemBackedCache<Key: Hashable, Value: Codable> {
 extension FileSystemBackedCache: Caching {
     
     
-    nonisolated public func insert(_ value: Value, for key: Key) {
+    public func insert(_ value: Value, for key: Key) {
         fatalError(#function)
     }
     
-    nonisolated public func value(for key: Key) -> Value? {
+    public func value(for key: Key) -> Value? {
         fatalError(#function)
     }
     
-    nonisolated public func removeValue(for key: Key) {
+    public func removeValue(for key: Key) {
         fatalError(#function)
     }
     
-    nonisolated public subscript(key: Key) -> Value? {
+    public subscript(key: Key) -> Value? {
         get {
             fatalError(#function)
         }
@@ -45,15 +45,15 @@ extension FileSystemBackedCache: Caching {
     }
     
     
-    nonisolated public var count: Int {
+    public var count: Int {
         fatalError(#function)
     }
     
-    nonisolated public var isEmpty: Bool {
+    public var isEmpty: Bool {
         true
     }
     
-    nonisolated public func clear() {
+    public func clear() {
         fatalError(#function)
     }
     
