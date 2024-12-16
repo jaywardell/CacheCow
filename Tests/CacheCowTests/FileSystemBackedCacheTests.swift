@@ -21,6 +21,14 @@ struct FileSystemBackedCacheTests {
             
             #expect(archiver.insertCount == 1)
         }
+
+        @Test func passes_key_hash_as_key_to_archiver() async throws {
+            let (sut, _, archiver) = makeSUT()
+            
+            sut.insert("", for: anyKey)
+            
+            #expect(archiver.insertedKeys.contains(anyKey.hashValue))
+        }
     }
     
 //    struct keys {
@@ -320,9 +328,11 @@ struct FileSystemBackedCacheTests {
     
     private final class DummyArchiver: FileSystemBackedArchiver {
         private(set) var insertCount = 0
+        private(set) var insertedKeys = [Int]()
         
-        func archive(_ value: String, for key: String) {
+        func archive(_ data: Data, for key: Int) {
             insertCount += 1
+            insertedKeys.append(key)
         }
     }
 }
