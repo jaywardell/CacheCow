@@ -160,6 +160,17 @@ struct FileSystemBackedCacheTests {
 //        
     }
     
+    struct remove {
+        @Test func calls_delete_on_archiver() async throws {
+            let (sut, _, archiver) = FileSystemBackedCacheTests.makeSUT()
+            sut.insert("expected", for: anyKey)
+
+            sut.removeValue(for: anyKey)
+            
+            #expect(archiver.removed.contains(anyKey.hashValue))
+        }
+    }
+    
 //    struct subscripting {
 //        @Test func returns_nil_for_empty_cache() async throws {
 //            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
@@ -303,6 +314,7 @@ struct FileSystemBackedCacheTests {
         private(set) var insertCount = 0
         private(set) var removeAllCount = 0
         private(set) var inserted = [Int:Data]()
+        private(set) var removed = [Int]()
         
         var keys: any Collection<Int> {
             inserted.keys
@@ -320,6 +332,10 @@ struct FileSystemBackedCacheTests {
         
         func data(at key: Int) -> Data? {
             inserted[key]
+        }
+        
+        func delete(key: Int) {
+            removed.append(key)
         }
     }
 }

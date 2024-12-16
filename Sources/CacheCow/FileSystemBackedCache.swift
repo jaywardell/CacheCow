@@ -11,6 +11,7 @@ public protocol FileSystemBackedArchiver {
     var keys: any Collection<Int> { get }
     func archive(_ data: Data, for key: Int)
     func data(at key: Int) -> Data?
+    func delete(key: Int)
     func removeAll()
 }
 
@@ -51,7 +52,8 @@ extension FileSystemBackedCache: Caching {
     }
     
     public func removeValue(for key: Key) {
-        fatalError(#function)
+//        fatalError(#function)
+        archiver.delete(key: key.hashValue)
     }
     
     public subscript(key: Key) -> Value? {
