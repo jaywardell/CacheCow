@@ -12,6 +12,17 @@ import CacheCow
 
 struct FileSystemBackedCacheTests {
     
+    struct insert {
+        
+        @Test func calls_archiver() async throws {
+            let (sut, _, archiver) = makeSUT()
+            
+            sut.insert("", for: anyKey)
+            
+            #expect(archiver.insertCount == 1)
+        }
+    }
+    
 //    struct keys {
 //        @Test func returns_empty_if_no_inserts_have_happened() async throws {
 //            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
@@ -260,9 +271,9 @@ struct FileSystemBackedCacheTests {
     
     // MARK: - Helpers
     
-    private static func makeSUT(lifetime: TimeInterval = 60) -> (FileSystemBackedCache<String, String>, DummyTime, FileSystemBackedArchiver) {
+    private static func makeSUT(lifetime: TimeInterval = 60) -> (FileSystemBackedCache<String, String>, DummyTime, DummyArchiver) {
         let time = DummyTime()
-        let archiver: FileSystemBackedArchiver = DummyArchiver()
+        let archiver = DummyArchiver()
         return (
             FileSystemBackedCache<String,
             String>(
@@ -308,6 +319,10 @@ struct FileSystemBackedCacheTests {
     }
     
     private final class DummyArchiver: FileSystemBackedArchiver {
+        private(set) var insertCount = 0
         
+        func archive(_ value: String, for key: String) {
+            insertCount += 1
+        }
     }
 }

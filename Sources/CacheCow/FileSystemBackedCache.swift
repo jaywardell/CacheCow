@@ -7,7 +7,9 @@
 
 import Foundation
 
-public protocol FileSystemBackedArchiver {}
+public protocol FileSystemBackedArchiver {
+    func archive(_ value: String, for key: String)
+}
 
 public final class FileSystemBackedCache<Key: Hashable, Value: Codable> {
     
@@ -28,19 +30,19 @@ public final class FileSystemBackedCache<Key: Hashable, Value: Codable> {
 extension FileSystemBackedCache: Caching {
     
     
-    public func insert(_ value: Value, for key: Key) {
+    public func insert(_ value: String, for key: String) {
+        archiver.archive(value, for: key)
+    }
+    
+    public func value(for key: String) -> String? {
         fatalError(#function)
     }
     
-    public func value(for key: Key) -> Value? {
+    public func removeValue(for key: String) {
         fatalError(#function)
     }
     
-    public func removeValue(for key: Key) {
-        fatalError(#function)
-    }
-    
-    public subscript(key: Key) -> Value? {
+    public subscript(key: String) -> String? {
         get {
             fatalError(#function)
         }
