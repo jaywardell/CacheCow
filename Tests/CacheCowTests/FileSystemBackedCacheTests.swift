@@ -148,16 +148,16 @@ struct FileSystemBackedCacheTests {
             #expect(expected == sut.value(for: FileSystemBackedCacheTests.anyKey))
         }
         
-//        @Test func returns_nil_after_value_removed() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//            let expected = "hello"
-//            
-//            sut.insert(expected, for: FileSystemBackedCacheTests.anyKey)
-//            sut.removeValue(for: FileSystemBackedCacheTests.anyKey)
-//            
-//            #expect(nil == sut.value(for: FileSystemBackedCacheTests.anyKey))
-//        }
-//        
+        @Test func returns_nil_after_value_removed() async throws {
+            let (sut, _, archiver) = FileSystemBackedCacheTests.makeSUT()
+            let expected = "hello"
+            
+            sut.insert(expected, for: anyKey)
+            archiver.delete(key: anyKey.hashValue)
+            
+            #expect(nil == sut.value(for: anyKey))
+        }
+        
     }
     
     struct remove {
@@ -336,6 +336,7 @@ struct FileSystemBackedCacheTests {
         
         func delete(key: Int) {
             removed.append(key)
+            inserted[key] = nil
         }
     }
 }
