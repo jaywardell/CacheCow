@@ -27,7 +27,16 @@ struct FileSystemBackedCacheTests {
             
             sut.insert("", for: anyKey)
             
-            #expect(archiver.insertedKeys.contains(anyKey.hashValue))
+            #expect(nil != archiver.inserted[anyKey.hashValue])
+        }
+
+        @Test func passes_encoded_value_to_archiver() async throws {
+            let (sut, _, archiver) = makeSUT()
+            
+            let expected = "expected"
+            sut.insert(expected, for: anyKey)
+            
+            #expect(archiver.inserted[anyKey.hashValue] == expected.data(using: .utf8))
         }
     }
     
@@ -285,6 +294,8 @@ struct FileSystemBackedCacheTests {
         return (
             FileSystemBackedCache<String,
             String>(
+                encode: { $0.data(using: .utf8) },
+                decode: { String(data: $0, encoding: .utf8) },
                 dateProvider: time.currentTime,
                 archiver: archiver,
                 entryLifetime: lifetime
@@ -328,11 +339,11 @@ struct FileSystemBackedCacheTests {
     
     private final class DummyArchiver: FileSystemBackedArchiver {
         private(set) var insertCount = 0
-        private(set) var insertedKeys = [Int]()
+        private(set) var inserted = [Int:Data]()
         
         func archive(_ data: Data, for key: Int) {
             insertCount += 1
-            insertedKeys.append(key)
+            inserted[key] = data
         }
     }
 }

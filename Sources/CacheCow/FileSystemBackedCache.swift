@@ -11,16 +11,22 @@ public protocol FileSystemBackedArchiver {
     func archive(_ data: Data, for key: Int)
 }
 
-public final class FileSystemBackedCache<Key: Hashable, Value: Codable> {
+public final class FileSystemBackedCache<Key: Hashable, Value> {
     
+    private let encode: (Value) -> Data?
+    private let decode: (Data) -> Value?
     private let dateProvider: () -> Date
     private let entryLifetime: TimeInterval?
     private let archiver: FileSystemBackedArchiver
     
-    public init(dateProvider: @escaping () -> Date,
+    public init(encode: @escaping (Value) -> Data?,
+                decode: @escaping (Data) -> Value?,
+                dateProvider: @escaping () -> Date,
                 archiver: FileSystemBackedArchiver,
                 entryLifetime: TimeInterval? = nil) {
         
+        self.encode = encode
+        self.decode = decode
         self.dateProvider = dateProvider
         self.archiver = archiver
         self.entryLifetime = entryLifetime
@@ -31,7 +37,10 @@ extension FileSystemBackedCache: Caching {
     
     
     public func insert(_ value: Value, for key: Key) {
-        archiver.archive(Data(), for: key.hashValue)
+        // if this fails, it's a cache, it's okay
+        guard let data = encode(value) else { return }
+ 
+        archiver.archive(data, for: key.hashValue)
     }
     
     public func value(for key: Key) -> Value? {
