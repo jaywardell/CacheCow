@@ -42,13 +42,13 @@ struct FileSystemBackedCacheTests {
     
 //    struct keys {
 //        @Test func returns_empty_if_no_inserts_have_happened() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //
 //            #expect(sut.keys.isEmpty)
 //        }
 //
 //        @Test func returns_one_key_if_one_key_has_been_inserted() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //
 //            sut.insert("hello", for: FileSystemBackedCacheTests.anyKey)
 //            
@@ -56,7 +56,7 @@ struct FileSystemBackedCacheTests {
 //        }
 //
 //        @Test func returns_all_inserted_keys() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //
 //            let expected = FileSystemBackedCacheTests.insertSomeEntries(into: sut)
 //            
@@ -64,7 +64,7 @@ struct FileSystemBackedCacheTests {
 //        }
 //        
 //        @Test func returns_empty_after_all_keys_removed() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //
 //            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
 //            sut.clear()
@@ -76,13 +76,13 @@ struct FileSystemBackedCacheTests {
 
 //    struct count {
 //        @Test func returns_0_if_no_inserts_have_happened() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //
 //            #expect(0 == sut.count)
 //        }
 //
 //        @Test func returns_one_if_one_key_has_been_inserted() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //
 //            sut.insert("hello", for: FileSystemBackedCacheTests.anyKey)
 //            
@@ -90,7 +90,7 @@ struct FileSystemBackedCacheTests {
 //        }
 //
 //        @Test func returns_count_of_all_inserted_keys() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //
 //            let expected = FileSystemBackedCacheTests.insertSomeEntries(into: sut)
 //
@@ -98,7 +98,7 @@ struct FileSystemBackedCacheTests {
 //        }
 //        
 //        @Test func returns_0_after_all_keys_removed() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //
 //            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
 //            sut.clear()
@@ -149,7 +149,7 @@ struct FileSystemBackedCacheTests {
         }
         
 //        @Test func returns_nil_after_value_removed() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //            let expected = "hello"
 //            
 //            sut.insert(expected, for: FileSystemBackedCacheTests.anyKey)
@@ -158,52 +158,16 @@ struct FileSystemBackedCacheTests {
 //            #expect(nil == sut.value(for: FileSystemBackedCacheTests.anyKey))
 //        }
 //        
-//        @Test func returns_inserted_value_before_entry_lifetime_expended() async throws {
-//            let lifetime = TimeInterval(60)
-//            let (sut, time) = FileSystemBackedCacheTests.makeSUT(lifetime: lifetime)
-//            let expected = "hello"
-//            
-//            sut.insert(expected, for: FileSystemBackedCacheTests.anyKey)
-//            
-//            time.increment(by: lifetime - 1)
-//            
-//            #expect(expected == sut.value(for: FileSystemBackedCacheTests.anyKey))
-//        }
-//
-//        @Test func returns_nil_when_entry_lifetime_expended() async throws {
-//            let lifetime = TimeInterval(60)
-//            let (sut, time) = FileSystemBackedCacheTests.makeSUT(lifetime: lifetime)
-//            let expected = "hello"
-//            
-//            sut.insert(expected, for: FileSystemBackedCacheTests.anyKey)
-//            
-//            time.increment(by: lifetime)
-//            
-//            #expect(nil == sut.value(for: FileSystemBackedCacheTests.anyKey))
-//        }
-//
-//        @Test func returns_nil_after_entry_lifetime_expended() async throws {
-//            let lifetime = TimeInterval(60)
-//            let (sut, time) = FileSystemBackedCacheTests.makeSUT(lifetime: lifetime)
-//            let expected = "hello"
-//            
-//            sut.insert(expected, for: FileSystemBackedCacheTests.anyKey)
-//            
-//            time.increment(by: lifetime + 1)
-//            
-//            #expect(nil == sut.value(for: FileSystemBackedCacheTests.anyKey))
-//        }
-//
     }
     
 //    struct subscripting {
 //        @Test func returns_nil_for_empty_cache() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //            #expect(nil == sut[FileSystemBackedCacheTests.anyKey])
 //        }
 //        
 //        @Test func returns_inserted_value() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //            let expected = "hello"
 //            
 //            sut[FileSystemBackedCacheTests.anyKey] = expected
@@ -212,7 +176,7 @@ struct FileSystemBackedCacheTests {
 //        }
 //        
 //        @Test func returns_nil_after_value_removed() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //            let expected = "hello"
 //            
 //            sut[FileSystemBackedCacheTests.anyKey] = expected
@@ -236,7 +200,7 @@ struct FileSystemBackedCacheTests {
 
 //    struct Encoding {
 //        @Test func round_trip_for_empty_cache() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //            let encoder = JSONEncoder()
 //            let decoder = JSONDecoder()
 //            
@@ -247,7 +211,7 @@ struct FileSystemBackedCacheTests {
 //        }
 //
 //        @Test func round_trip_for_cache_with_objects() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //            let encoder = JSONEncoder()
 //            let decoder = JSONDecoder()
 //            
@@ -266,7 +230,7 @@ struct FileSystemBackedCacheTests {
 //    struct Saving {
 //        
 //        @Test func saves_and_retrieves_from_disk() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
 //            let filename = #function
 //            
 //            insertSomeEntries(into: sut)
