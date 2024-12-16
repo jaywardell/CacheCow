@@ -67,7 +67,7 @@ extension FileSystemBackedCache: Caching {
     
     
     public var count: Int {
-        fatalError(#function)
+        archiver.keys.count
     }
     
     public var isEmpty: Bool {

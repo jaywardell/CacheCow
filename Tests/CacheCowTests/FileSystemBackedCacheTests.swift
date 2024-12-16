@@ -74,39 +74,39 @@ struct FileSystemBackedCacheTests {
 //
 //    }
 
-//    struct count {
-//        @Test func returns_0_if_no_inserts_have_happened() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            #expect(0 == sut.count)
-//        }
-//
-//        @Test func returns_one_if_one_key_has_been_inserted() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            sut.insert("hello", for: FileSystemBackedCacheTests.anyKey)
-//            
-//            #expect(1 == sut.count)
-//        }
-//
-//        @Test func returns_count_of_all_inserted_keys() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            let expected = FileSystemBackedCacheTests.insertSomeEntries(into: sut)
-//
-//            #expect(expected.count == sut.count)
-//        }
-//        
-//        @Test func returns_0_after_all_keys_removed() async throws {
-//            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
-//            sut.clear()
-//            
-//            #expect(0 == sut.count)
-//        }
-//
-//    }
+    struct count {
+        @Test func returns_0_if_no_inserts_have_happened() async throws {
+            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
+
+            #expect(0 == sut.count)
+        }
+
+        @Test func returns_one_if_one_key_has_been_inserted() async throws {
+            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
+
+            sut.insert("hello", for: FileSystemBackedCacheTests.anyKey)
+            
+            #expect(1 == sut.count)
+        }
+
+        @Test func returns_count_of_all_inserted_keys() async throws {
+            let (sut, _, _) = FileSystemBackedCacheTests.makeSUT()
+
+            let expected = FileSystemBackedCacheTests.insertSomeEntries(into: sut)
+
+            #expect(expected.count == sut.count)
+        }
+        
+        @Test func returns_0_after_all_keys_removed_from_archiver() async throws {
+            let (sut, _, archiver) = FileSystemBackedCacheTests.makeSUT()
+
+            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
+            archiver.removeAll()
+            
+            #expect(0 == sut.count)
+        }
+
+    }
 
     struct isEmpty {
         @Test func returns_true_if_no_inserts_have_happened() async throws {
