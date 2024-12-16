@@ -9,13 +9,13 @@ import Foundation
 
 public final class FileSystemBackedCache<Key: Hashable, Value: Codable> {
     
-//    private let dateProvider: () -> Date
+    private let dateProvider: () -> Date
     private let entryLifetime: TimeInterval?
     
-    public init(
+    public init(dateProvider: @escaping () -> Date,
                 entryLifetime: TimeInterval? = nil) {
         
-//        self.dateProvider = dateProvider
+        self.dateProvider = dateProvider
         self.entryLifetime = entryLifetime
     }
 }
