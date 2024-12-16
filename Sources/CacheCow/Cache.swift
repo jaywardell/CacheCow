@@ -11,12 +11,12 @@ import Foundation
 public final class Cache<Key: Hashable, Value> {
     private let wrapped = NSCache<WrappedKey, Entry>()
     private let dateProvider: () -> Date
-    private let entryLifetime: TimeInterval
+    private let entryLifetime: TimeInterval?
     private let keyTracker = KeyTracker()
     
     // MARK: -
     public init(dateProvider: @escaping () -> Date = Date.init,
-         entryLifetime: TimeInterval = 12 * 60 * 60,
+         entryLifetime: TimeInterval? = nil,
          countLimit: Int = 0) {
         self.dateProvider = dateProvider
         self.entryLifetime = entryLifetime
@@ -58,7 +58,7 @@ extension Cache: Caching {
     /// Note that this may or may not be enforced by NSCache.
     public var countLimit: Int { wrapped.countLimit }
     public func insert(_ value: Value, for key: Key) {
-        let date = dateProvider().addingTimeInterval(entryLifetime)
+        let date = entryLifetime.map { dateProvider().addingTimeInterval($0) } ?? .distantFuture
         let entry = Entry(key: key, value: value, expirationDate: date)
  
         insert(entry)
@@ -158,27 +158,61 @@ extension Cache: Codable where Key: Codable, Value: Codable {
 
 public extension Cache where Key: Codable, Value: Codable {
     
-    private static func cacheURL(named name: String, using fileManager: FileManager) -> URL {
-        let folderURLs = fileManager.urls(
-            for: .cachesDirectory,
-            in: .userDomainMask
-        )
-        
-        return folderURLs[0].appendingPathComponent(name + ".cache")
+    enum Error: Swift.Error {
+        case pathDoesNotExist
     }
     
+    private static func cacheURL(named name: String,
+                                 group: String?,
+                                 using fileManager: FileManager) -> URL? {
+        let folderURL: URL?
+        
+        if let group {
+            guard let directory = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: group) else { return nil }
+            
+            folderURL = directory
+                .appendingPathComponent("Library")
+                .appendingPathComponent("Caches")
+        }
+        else {
+            let folderURLs = fileManager.urls(
+                for: .cachesDirectory,
+                in: .userDomainMask
+            )
+            folderURL = folderURLs.first
+        }
+        
+        guard let folderURL else { return nil }
+        
+        return folderURL.appendingPathComponent(name + ".cache")
+    }
+    
+    @discardableResult
     func saveToFile(
         named name: String,
-        using fileManager: FileManager = .default
+        group: String? = nil,
+       using fileManager: FileManager = .default
     ) throws -> URL {
-        let fileURL = Self.cacheURL(named: name, using: fileManager)
+        guard let fileURL = Self.cacheURL(named: name, group: group, using: fileManager) else {
+            throw Error.pathDoesNotExist
+        }
+        
+        let directory = fileURL.deletingLastPathComponent()
+        try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+        
         try saveAsJSON(to: fileURL)
         return fileURL
     }
     
     
-    static func readFromFile(named name: String, using fileManager: FileManager = .default) throws -> Cache {
-        let fileURL = cacheURL(named: name, using: fileManager)
+    static func readFromFile(
+        named name: String,
+        group: String? = nil,
+        using fileManager: FileManager = .default
+    ) throws -> Cache {
+        guard let fileURL = cacheURL(named: name, group: group, using: fileManager) else {
+            throw Error.pathDoesNotExist
+        }
         return try readAsJSON(from: fileURL)
     }
 }
