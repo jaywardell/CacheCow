@@ -80,21 +80,21 @@ struct FileSystemBackedCacheTests {
 //
 //    }
 
-//    struct isEmpty {
-//        @Test func returns_true_if_no_inserts_have_happened() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            #expect(sut.isEmpty)
-//        }
-//
-//        @Test func returns_false_if_keys_have_been_inserted() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
-//
-//            #expect(!sut.isEmpty)
-//        }
-//        
+    struct isEmpty {
+        @Test func returns_true_if_no_inserts_have_happened() async throws {
+            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+
+            #expect(sut.isEmpty)
+        }
+
+        @Test func returns_false_if_keys_have_been_inserted() async throws {
+            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
+
+            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
+
+            #expect(!sut.isEmpty)
+        }
+        
 //        @Test func returns_true_after_all_keys_removed() async throws {
 //            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
 //
@@ -103,8 +103,8 @@ struct FileSystemBackedCacheTests {
 //            
 //            #expect(sut.isEmpty)
 //        }
-//
-//    }
+
+    }
 
 //    struct valueForKey {
 //        @Test func returns_nil_for_empty_cache() async throws {
@@ -268,7 +268,7 @@ struct FileSystemBackedCacheTests {
     private static let anyKey: String  = "any"
     
     @discardableResult
-    private static func insertSomeEntries(into sut: Cache<String, String>) -> [String] {
+    private static func insertSomeEntries(into sut: FileSystemBackedCache<String, String>) -> [String] {
         let expectedCount = Int.random(in: 2 ... 20)
         
         let expected = (0 ..< expectedCount).map(String.init)

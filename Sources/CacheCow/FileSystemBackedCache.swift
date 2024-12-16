@@ -50,7 +50,7 @@ extension FileSystemBackedCache: Caching {
     }
     
     nonisolated public var isEmpty: Bool {
-        fatalError(#function)
+        true
     }
     
     nonisolated public func clear() {
