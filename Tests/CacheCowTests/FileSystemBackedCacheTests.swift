@@ -123,15 +123,14 @@ struct FileSystemBackedCacheTests {
             #expect(!sut.isEmpty)
         }
         
-//        @Test func returns_true_after_all_keys_removed() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
-//            sut.clear()
-//            
-//            #expect(sut.isEmpty)
-//        }
+        @Test func returns_true_after_archiver_has_removed_all_entries() async throws {
+            let (sut, _, archiver) = FileSystemBackedCacheTests.makeSUT()
 
+            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
+            archiver.removeAll()
+            
+            #expect(sut.isEmpty)
+        }
     }
 
 //    struct valueForKey {
@@ -223,17 +222,16 @@ struct FileSystemBackedCacheTests {
 //        }
 //    }
     
-//    struct clear {
-//        @Test func removes_all_keys() async throws {
-//            let (sut, _) = FileSystemBackedCacheTests.makeSUT()
-//
-//            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
-//            sut.clear()
-//            
-//            #expect(sut.isEmpty)
-//        }
-//
-//    }
+    struct clear {
+        @Test func calls_removeAll_on_archiver() async throws {
+            let (sut, _, archiver) = makeSUT()
+            
+            FileSystemBackedCacheTests.insertSomeEntries(into: sut)
+            sut.clear()
+
+            #expect(1 == archiver.removeAllCount)
+        }
+    }
     
 
 //    struct Encoding {
@@ -340,6 +338,7 @@ struct FileSystemBackedCacheTests {
     private final class DummyArchiver: FileSystemBackedArchiver {
         
         private(set) var insertCount = 0
+        private(set) var removeAllCount = 0
         private(set) var inserted = [Int:Data]()
         
         var keys: any Collection<Int> {
@@ -349,6 +348,11 @@ struct FileSystemBackedCacheTests {
         func archive(_ data: Data, for key: Int) {
             insertCount += 1
             inserted[key] = data
+        }
+        
+        func removeAll() {
+            removeAllCount += 1
+            inserted.removeAll()
         }
     }
 }
