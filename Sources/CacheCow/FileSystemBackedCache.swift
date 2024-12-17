@@ -32,6 +32,10 @@ public final class FileSystemBackedCache<Key: Hashable, Value> {
         self.dateProvider = dateProvider
         self.archiver = archiver
     }
+    
+    static func stringToKey(_ string: String) -> String {
+        ""
+    }
 }
 
 @available(macOS 13.0, *)
