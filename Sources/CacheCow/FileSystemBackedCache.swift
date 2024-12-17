@@ -37,11 +37,26 @@ public final class FileSystemBackedCache<Key: Hashable, Value> {
 @available(macOS 13.0, *)
 extension FileSystemBackedCache where Key == URL {
     
+    enum Error: Swift.Error {
+        case noDirectory
+    }
+    
     static func urlDirectoryCache(
         at directory: URL,
         encode: @escaping (Value) -> Data?,
         decode: @escaping (Data) -> Value?
     ) async throws -> FileSystemBackedCache<URL, Value> {
+        let archiver = try await DirectoryBackedArchiver(at: directory)
+        return FileSystemBackedCache(encode: encode, decode: decode, archiver: archiver)
+    }
+    
+    static func urlDirectoryCache(
+        named name: String,
+        in group: String? = nil,
+        encode: @escaping (Value) -> Data?,
+        decode: @escaping (Data) -> Value?
+    ) async throws -> FileSystemBackedCache<URL, Value> {
+        guard let directory = FileManager.default.cacheURL(named: name, group: group) else { throw Error.noDirectory }
         let archiver = try await DirectoryBackedArchiver(at: directory)
         return FileSystemBackedCache(encode: encode, decode: decode, archiver: archiver)
     }
