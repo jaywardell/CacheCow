@@ -34,8 +34,11 @@ public final class FileSystemBackedCache<Key: Hashable, Value> {
     }
     
     static func stringToKey(_ string: String) -> String {
-        let charactersToRemoved = CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters)
-        return string.components(separatedBy: charactersToRemoved).joined()
+        let charactersToRemoved = CharacterSet.whitespacesAndNewlines
+            .union(.punctuationCharacters)
+        return string.components(separatedBy: charactersToRemoved)
+            .reversed()
+            .joined()
     }
 }
 

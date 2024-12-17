@@ -36,11 +36,11 @@ struct FileSystemBackedCacheTests {
         @Test(
             "Phrases",
             arguments: [
-                ("burger shop", "burgershop"),
-                ("cat burglar", "catburglar"),
-                ("I love running", "Iloverunning"),
-                ("fantabulous stupednous marvelous", "fantabulousstupednousmarvelous"),
-                ("so\thonorific", "sohonorific")
+                ("burger shop", "shopburger"),
+                ("cat burglar", "burglarcat"),
+                ("I love running", "runningloveI"),
+                ("fantabulous stupednous marvelous", "marvelousstupednousfantabulous"),
+                ("so\thonorific", "honorificso")
             ]
         )
         func words_returns_words_without_spaces(_ strings: (String, String)) async throws {
@@ -48,14 +48,14 @@ struct FileSystemBackedCacheTests {
         }
 
         @Test(
-            "URLs",
+            "URLs and other punctuation",
             arguments: [
-                ("https://developer.apple.com/documentation/testing/parameterizedtesting", "httpsdeveloperapplecomdocumentationtestingparameterizedtesting"),
-                ("https://swiftwithmajid.com/2024/11/12/introducing-swift-testing-parameterized-tests/", "httpsswiftwithmajidcom20241112introducingswifttestingparameterizedtests"),
-                ("The great manda eats, shoots, and leaves.", "Thegreatmandaeatsshootsandleaves")
+                ("https://developer.apple.com/documentation/testing/parameterizedtesting", "parameterizedtestingtestingdocumentationcomappledeveloperhttps"),
+                ("https://swiftwithmajid.com/2024/11/12/introducing-swift-testing-parameterized-tests/", "testsparameterizedtestingswiftintroducing12112024comswiftwithmajidhttps"),
+                ("The great manda eats, shoots, and leaves.", "leavesandshootseatsmandagreatThe")
             ]
         )
-        func punctuation_returns_words_without_punctuation(_ strings: (String, String)) async throws {
+        func punctuation_returns_words_without_punctuation_reversed(_ strings: (String, String)) async throws {
             #expect(FileSystemBackedCache<String, String>.stringToKey(strings.0) == strings.1)
         }
 
