@@ -19,15 +19,13 @@ public protocol CacheKey {
     func cacheKey() -> String
 }
 
-//extension CacheKey {
 public func cacheValue(of cacheKey: CacheKey) -> String {
         let charactersToRemoved = CharacterSet.whitespacesAndNewlines
             .union(.punctuationCharacters)
     return cacheKey.cacheKey().components(separatedBy: charactersToRemoved)
             .reversed()
             .joined()
-    }
-//}
+}
 
 public final class FileSystemBackedCache<Key: CacheKey, Value> {
     
