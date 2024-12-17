@@ -118,6 +118,7 @@ extension DirectoryBackedArchiver: FileSystemBackedArchiver {
         }
         catch {
             Logger.directoryBachedArchiver.error("Could not read data from url \(fileURL): \(error.localizedDescription)")
+            return nil
         }
    }
     
