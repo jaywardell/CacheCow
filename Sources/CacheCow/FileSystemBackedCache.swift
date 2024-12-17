@@ -24,13 +24,26 @@ public final class FileSystemBackedCache<Key: Hashable, Value> {
     
     public init(encode: @escaping (Value) -> Data?,
                 decode: @escaping (Data) -> Value?,
-                dateProvider: @escaping () -> Date,
+                dateProvider: @escaping () -> Date = Date.init,
                 archiver: FileSystemBackedArchiver) {
         
         self.encode = encode
         self.decode = decode
         self.dateProvider = dateProvider
         self.archiver = archiver
+    }
+}
+
+@available(macOS 13.0, *)
+extension FileSystemBackedCache where Key == URL {
+    
+    static func urlDirectoryCache(
+        at directory: URL,
+        encode: @escaping (Value) -> Data?,
+        decode: @escaping (Data) -> Value?
+    ) async throws -> FileSystemBackedCache<URL, Value> {
+        let archiver = try await DirectoryBackedArchiver(at: directory)
+        return FileSystemBackedCache(encode: encode, decode: decode, archiver: archiver)
     }
 }
 
