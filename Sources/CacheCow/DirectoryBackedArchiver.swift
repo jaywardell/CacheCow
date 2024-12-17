@@ -27,8 +27,8 @@ class DirectoryBackedArchiver {
         try await files.createDirectory(at: url)
     }
     
-    private func url(for key: Int) -> URL {
-        url.appending(component: String(key))
+    private func url(for key: String) -> URL {
+        url.appending(component: key)
     }
 }
 
@@ -99,7 +99,7 @@ extension DirectoryBackedArchiver {
 @available(macOS 13.0, *)
 extension DirectoryBackedArchiver: FileSystemBackedArchiver {
 
-    func archive(_ data: Data, for key: Int) {
+    func archive(_ data: Data, for key: String) {
         let fileURL = url(for: key)
         Task { [files] in
             do {
@@ -111,7 +111,7 @@ extension DirectoryBackedArchiver: FileSystemBackedArchiver {
         }
     }
     
-    func data(at key: Int) -> Data? {
+    func data(at key: String) -> Data? {
         let fileURL = url(for: key)
         do {
             return try files.readData(at: fileURL)
@@ -122,7 +122,7 @@ extension DirectoryBackedArchiver: FileSystemBackedArchiver {
         }
    }
     
-    func delete(key: Int) {
+    func delete(key: String) {
         let fileURL = url(for: key)
         Task { [files] in
             do {
@@ -145,11 +145,9 @@ extension DirectoryBackedArchiver: FileSystemBackedArchiver {
         }
     }
     
-    var keys: any Collection<Int> {
+    var keys: any Collection<String> {
         do {
-            return try files.files(at: url).compactMap {
-                Int($0)
-            }
+            return try files.files(at: url)
         }
         catch {
             Logger.directoryBachedArchiver.error("Could not read contents of directory \(self.url): \(error.localizedDescription)")

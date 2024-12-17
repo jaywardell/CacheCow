@@ -277,14 +277,14 @@ struct FileSystemBackedCacheTests {
         
         private(set) var insertCount = 0
         private(set) var removeAllCount = 0
-        private(set) var inserted = [Int:Data]()
-        private(set) var removed = [Int]()
+        private(set) var inserted = [String:Data]()
+        private(set) var removed = [String]()
         
-        var keys: any Collection<Int> {
+        var keys: any Collection<String> {
             inserted.keys
         }
         
-        func archive(_ data: Data, for key: Int) {
+        func archive(_ data: Data, for key: String) {
             insertCount += 1
             inserted[key] = data
         }
@@ -294,11 +294,11 @@ struct FileSystemBackedCacheTests {
             inserted.removeAll()
         }
         
-        func data(at key: Int) -> Data? {
+        func data(at key: String) -> Data? {
             inserted[key]
         }
         
-        func delete(key: Int) {
+        func delete(key: String) {
             removed.append(key)
             inserted[key] = nil
         }

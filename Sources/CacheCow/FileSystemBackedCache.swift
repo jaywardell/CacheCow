@@ -8,14 +8,18 @@
 import Foundation
 
 public protocol FileSystemBackedArchiver {
-    var keys: any Collection<Int> { get }
-    func archive(_ data: Data, for key: Int)
-    func data(at key: Int) -> Data?
-    func delete(key: Int)
+    var keys: any Collection<String> { get }
+    func archive(_ data: Data, for key: String)
+    func data(at key: String) -> Data?
+    func delete(key: String)
     func deleteAll()
 }
 
-public final class FileSystemBackedCache<Key: Hashable, Value> {
+public protocol CacheKey {
+    func asCacheKey() -> String
+}
+
+public final class FileSystemBackedCache<Key: CacheKey, Value> {
     
     private let encode: (Value) -> Data?
     private let decode: (Data) -> Value?
@@ -39,6 +43,63 @@ public final class FileSystemBackedCache<Key: Hashable, Value> {
         return string.components(separatedBy: charactersToRemoved)
             .reversed()
             .joined()
+    }
+}
+
+extension FileSystemBackedCache: Caching {
+    
+    
+    public func insert(_ value: Value, for key: Key) {
+        // if this fails, it's a cache, it's okay
+        guard let data = encode(value) else { return }
+ 
+        archiver.archive(data, for: key.asCacheKey())
+    }
+    
+    public func value(for key: Key) -> Value? {
+
+        guard let archived = archiver.data(at: key.asCacheKey()) else { return nil }
+        
+        return decode(archived)
+    }
+    
+    public func removeValue(for key: Key) {
+        archiver.delete(key: key.asCacheKey())
+    }
+    
+    public subscript(key: Key) -> Value? {
+        get {
+            value(for: key)
+        }
+        set {
+            if let newValue {
+                insert(newValue, for: key)
+            }
+            else {
+                removeValue(for: key)
+            }
+        }
+    }
+    
+    
+    public var count: Int {
+        archiver.keys.count
+    }
+    
+    public var isEmpty: Bool {
+        archiver.keys.isEmpty
+    }
+    
+    public func clear() {
+        archiver.deleteAll()
+    }
+    
+    
+}
+
+extension URL: CacheKey {
+    public func asCacheKey() -> String {
+        absoluteString
     }
 }
 
@@ -70,53 +131,8 @@ extension FileSystemBackedCache where Key == URL {
     }
 }
 
-extension FileSystemBackedCache: Caching {
-    
-    
-    public func insert(_ value: Value, for key: Key) {
-        // if this fails, it's a cache, it's okay
-        guard let data = encode(value) else { return }
- 
-        archiver.archive(data, for: key.hashValue)
+extension String: CacheKey {
+    public func asCacheKey() -> String {
+        self
     }
-    
-    public func value(for key: Key) -> Value? {
-
-        guard let archived = archiver.data(at: key.hashValue) else { return nil }
-        
-        return decode(archived)
-    }
-    
-    public func removeValue(for key: Key) {
-        archiver.delete(key: key.hashValue)
-    }
-    
-    public subscript(key: Key) -> Value? {
-        get {
-            value(for: key)
-        }
-        set {
-            if let newValue {
-                insert(newValue, for: key)
-            }
-            else {
-                removeValue(for: key)
-            }
-        }
-    }
-    
-    
-    public var count: Int {
-        archiver.keys.count
-    }
-    
-    public var isEmpty: Bool {
-        archiver.keys.isEmpty
-    }
-    
-    public func clear() {
-        archiver.deleteAll()
-    }
-    
-    
 }
