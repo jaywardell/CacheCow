@@ -34,7 +34,7 @@ public final class FileSystemBackedCache<Key: Hashable, Value> {
     }
     
     static func stringToKey(_ string: String) -> String {
-        ""
+        string
     }
 }
 

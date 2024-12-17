@@ -17,6 +17,12 @@ struct FileSystemBackedCacheTests {
             let expected = ""
             #expect(FileSystemBackedCache<String, String>.stringToKey(expected) == expected)
         }
+
+        @Test("Simple Words", arguments: ["burger", "iceCream", "burrito", "noodleBowl", "kebab"])
+        func word_returns_word(_ string: String) async throws {
+            let expected = string
+            #expect(FileSystemBackedCache<String, String>.stringToKey(string) == expected)
+        }
     }
     
     struct insert {
