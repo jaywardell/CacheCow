@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 @available(macOS 13.0, *)
 class DirectoryBackedArchiver {
@@ -105,7 +106,7 @@ extension DirectoryBackedArchiver: FileSystemBackedArchiver {
                 try await files.save(data, to: fileURL)
             }
             catch {
-                fatalError(error.localizedDescription)
+                Logger.directoryBachedArchiver.error("Could not write data to url \(fileURL): \(error.localizedDescription)")
             }
         }
     }
@@ -116,7 +117,7 @@ extension DirectoryBackedArchiver: FileSystemBackedArchiver {
             return try files.readData(at: fileURL)
         }
         catch {
-            fatalError(error.localizedDescription)
+            Logger.directoryBachedArchiver.error("Could not read data from url \(fileURL): \(error.localizedDescription)")
         }
    }
     
@@ -127,7 +128,7 @@ extension DirectoryBackedArchiver: FileSystemBackedArchiver {
                 try await files.deleteFile(at: fileURL)
             }
             catch {
-                fatalError(error.localizedDescription)
+                Logger.directoryBachedArchiver.error("Could not delete file at \(fileURL): \(error.localizedDescription)")
             }
         }
     }
@@ -138,7 +139,7 @@ extension DirectoryBackedArchiver: FileSystemBackedArchiver {
                 try await files.deleteAllFiles(at: url)
             }
             catch {
-                fatalError(error.localizedDescription)
+                Logger.directoryBachedArchiver.error("Could delete all files in directory \(url): \(error.localizedDescription)")
             }
         }
     }
@@ -150,7 +151,9 @@ extension DirectoryBackedArchiver: FileSystemBackedArchiver {
             }
         }
         catch {
-            fatalError()
+            Logger.directoryBachedArchiver.error("Could not read contents of directory \(self.url): \(error.localizedDescription)")
+            Logger.directoryBachedArchiver.info("Returning empty array instead")
+            return []
         }
     }
     
@@ -164,3 +167,10 @@ extension URL {
     }
 }
 
+@available(macOS 13.0, *)
+fileprivate extension Logger {
+    // see https://www.avanderlee.com/debugging/oslog-unified-logging/
+        
+    /// Logs the view cycles like a view that appeared.
+    static let directoryBachedArchiver = Logger(subsystem: "\(DirectoryBackedArchiver.self)", category: "directory backed archiver")
+}
