@@ -16,8 +16,18 @@ public protocol FileSystemBackedArchiver {
 }
 
 public protocol CacheKey {
-    func asCacheKey() -> String
+    func cacheKey() -> String
 }
+
+//extension CacheKey {
+public func cacheValue(of cacheKey: CacheKey) -> String {
+        let charactersToRemoved = CharacterSet.whitespacesAndNewlines
+            .union(.punctuationCharacters)
+    return cacheKey.cacheKey().components(separatedBy: charactersToRemoved)
+            .reversed()
+            .joined()
+    }
+//}
 
 public final class FileSystemBackedCache<Key: CacheKey, Value> {
     
@@ -36,14 +46,6 @@ public final class FileSystemBackedCache<Key: CacheKey, Value> {
         self.dateProvider = dateProvider
         self.archiver = archiver
     }
-    
-    static func stringToKey(_ string: String) -> String {
-        let charactersToRemoved = CharacterSet.whitespacesAndNewlines
-            .union(.punctuationCharacters)
-        return string.components(separatedBy: charactersToRemoved)
-            .reversed()
-            .joined()
-    }
 }
 
 extension FileSystemBackedCache: Caching {
@@ -53,18 +55,18 @@ extension FileSystemBackedCache: Caching {
         // if this fails, it's a cache, it's okay
         guard let data = encode(value) else { return }
  
-        archiver.archive(data, for: key.asCacheKey())
+        archiver.archive(data, for: cacheValue(of: key))
     }
     
     public func value(for key: Key) -> Value? {
 
-        guard let archived = archiver.data(at: key.asCacheKey()) else { return nil }
+        guard let archived = archiver.data(at: cacheValue(of: key)) else { return nil }
         
         return decode(archived)
     }
     
     public func removeValue(for key: Key) {
-        archiver.delete(key: key.asCacheKey())
+        archiver.delete(key: cacheValue(of: key))
     }
     
     public subscript(key: Key) -> Value? {
@@ -98,7 +100,7 @@ extension FileSystemBackedCache: Caching {
 }
 
 extension URL: CacheKey {
-    public func asCacheKey() -> String {
+    public func cacheKey() -> String {
         absoluteString
     }
 }
@@ -132,7 +134,7 @@ extension FileSystemBackedCache where Key == URL {
 }
 
 extension String: CacheKey {
-    public func asCacheKey() -> String {
+    public func cacheKey() -> String {
         self
     }
 }

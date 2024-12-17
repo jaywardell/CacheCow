@@ -11,56 +11,7 @@ import Foundation
 @testable import CacheCow
 
 struct FileSystemBackedCacheTests {
-    
-    struct stringToKey {
-        @Test func empty_returns_empty() async throws {
-            let expected = ""
-            #expect(FileSystemBackedCache<String, String>.stringToKey(expected) == expected)
-        }
-
-        @Test(
-            "Simple Words",
-            arguments: [
-                "burger",
-                "cat",
-                "running",
-                "fantabulous",
-                "honorific"
-            ]
-        )
-        func word_returns_word(_ string: String) async throws {
-            let expected = string
-            #expect(FileSystemBackedCache<String, String>.stringToKey(string) == expected)
-        }
         
-        @Test(
-            "Phrases",
-            arguments: [
-                ("burger shop", "shopburger"),
-                ("cat burglar", "burglarcat"),
-                ("I love running", "runningloveI"),
-                ("fantabulous stupednous marvelous", "marvelousstupednousfantabulous"),
-                ("so\thonorific", "honorificso")
-            ]
-        )
-        func words_returns_words_without_spaces(_ strings: (String, String)) async throws {
-            #expect(FileSystemBackedCache<String, String>.stringToKey(strings.0) == strings.1)
-        }
-
-        @Test(
-            "URLs and other punctuation",
-            arguments: [
-                ("https://developer.apple.com/documentation/testing/parameterizedtesting", "parameterizedtestingtestingdocumentationcomappledeveloperhttps"),
-                ("https://swiftwithmajid.com/2024/11/12/introducing-swift-testing-parameterized-tests/", "testsparameterizedtestingswiftintroducing12112024comswiftwithmajidhttps"),
-                ("The great manda eats, shoots, and leaves.", "leavesandshootseatsmandagreatThe")
-            ]
-        )
-        func punctuation_returns_words_without_punctuation_reversed(_ strings: (String, String)) async throws {
-            #expect(FileSystemBackedCache<String, String>.stringToKey(strings.0) == strings.1)
-        }
-
-    }
-    
     struct insert {
         
         @Test func calls_archiver() async throws {
@@ -76,7 +27,7 @@ struct FileSystemBackedCacheTests {
             
             sut.insert("", for: anyKey)
             
-            #expect(nil != archiver.inserted[anyKey.asCacheKey()])
+            #expect(nil != archiver.inserted[cacheValue(of: anyKey)])
         }
 
         @Test func passes_encoded_value_to_archiver() async throws {
@@ -85,7 +36,7 @@ struct FileSystemBackedCacheTests {
             let expected = "expected"
             sut.insert(expected, for: anyKey)
             
-            #expect(archiver.inserted[anyKey.asCacheKey()] == expected.data(using: .utf8))
+            #expect(archiver.inserted[cacheValue(of: anyKey)] == expected.data(using: .utf8))
         }
     }
     
@@ -168,7 +119,7 @@ struct FileSystemBackedCacheTests {
             let expected = "hello"
             
             sut.insert(expected, for: anyKey)
-            archiver.delete(key: anyKey.asCacheKey())
+            archiver.delete(key: cacheValue(of: anyKey))
             
             #expect(nil == sut.value(for: anyKey))
         }
@@ -182,7 +133,7 @@ struct FileSystemBackedCacheTests {
 
             sut.removeValue(for: anyKey)
             
-            #expect(archiver.removed.contains(anyKey.asCacheKey()))
+            #expect(archiver.removed.contains(cacheValue(of: anyKey)))
         }
     }
     
@@ -241,7 +192,7 @@ struct FileSystemBackedCacheTests {
         )
     }
     
-    private static let anyKey: String  = "any"
+    private static let anyKey: String  = "any-key"
     
     @discardableResult
     private static func insertSomeEntries(into sut: FileSystemBackedCache<String, String>) -> [String] {
