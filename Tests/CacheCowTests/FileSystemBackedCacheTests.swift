@@ -18,11 +18,47 @@ struct FileSystemBackedCacheTests {
             #expect(FileSystemBackedCache<String, String>.stringToKey(expected) == expected)
         }
 
-        @Test("Simple Words", arguments: ["burger", "iceCream", "burrito", "noodleBowl", "kebab"])
+        @Test(
+            "Simple Words",
+            arguments: [
+                "burger",
+                "cat",
+                "running",
+                "fantabulous",
+                "honorific"
+            ]
+        )
         func word_returns_word(_ string: String) async throws {
             let expected = string
             #expect(FileSystemBackedCache<String, String>.stringToKey(string) == expected)
         }
+        
+        @Test(
+            "Phrases",
+            arguments: [
+                ("burger shop", "burgershop"),
+                ("cat burglar", "catburglar"),
+                ("I love running", "Iloverunning"),
+                ("fantabulous stupednous marvelous", "fantabulousstupednousmarvelous"),
+                ("so\thonorific", "sohonorific")
+            ]
+        )
+        func words_returns_words_without_spaces(_ strings: (String, String)) async throws {
+            #expect(FileSystemBackedCache<String, String>.stringToKey(strings.0) == strings.1)
+        }
+
+        @Test(
+            "URLs",
+            arguments: [
+                ("https://developer.apple.com/documentation/testing/parameterizedtesting", "httpsdeveloperapplecomdocumentationtestingparameterizedtesting"),
+                ("https://swiftwithmajid.com/2024/11/12/introducing-swift-testing-parameterized-tests/", "httpsswiftwithmajidcom20241112introducingswifttestingparameterizedtests"),
+                ("The great manda eats, shoots, and leaves.", "Thegreatmandaeatsshootsandleaves")
+            ]
+        )
+        func punctuation_returns_words_without_punctuation(_ strings: (String, String)) async throws {
+            #expect(FileSystemBackedCache<String, String>.stringToKey(strings.0) == strings.1)
+        }
+
     }
     
     struct insert {
