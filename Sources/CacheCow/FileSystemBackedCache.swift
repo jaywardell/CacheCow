@@ -103,7 +103,7 @@ extension URL: CacheKey {
     }
 }
 
-@available(macOS 13.0, *)
+@available(iOS 16.0, macOS 13.0, *)
 extension FileSystemBackedCache where Key == URL {
     
     enum Error: Swift.Error, LocalizedError {

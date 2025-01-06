@@ -8,7 +8,7 @@
 import Foundation
 import OSLog
 
-@available(macOS 13.0, *)
+@available(iOS 16.0, macOS 13.0, *)
 class DirectoryBackedArchiver {
     
     let url: URL
@@ -32,7 +32,7 @@ class DirectoryBackedArchiver {
     }
 }
 
-@available(macOS 13.0, *)
+@available(iOS 16.0, macOS 13.0, *)
 extension DirectoryBackedArchiver {
     fileprivate actor FileSystem {
         
@@ -96,7 +96,7 @@ extension DirectoryBackedArchiver {
     }
 }
 
-@available(macOS 13.0, *)
+@available(iOS 16.0, macOS 13.0, *)
 extension DirectoryBackedArchiver: FileSystemBackedArchiver {
 
     func archive(_ data: Data, for key: String) {
@@ -166,7 +166,7 @@ extension URL {
     }
 }
 
-@available(macOS 13.0, *)
+@available(iOS 16.0, macOS 13.0, *)
 fileprivate extension Logger {
     // see https://www.avanderlee.com/debugging/oslog-unified-logging/
         
@@ -174,7 +174,7 @@ fileprivate extension Logger {
     static let directoryBachedArchiver = Logger(subsystem: "\(DirectoryBackedArchiver.self)", category: "directory backed archiver")
 }
 
-@available(macOS 13.0, *)
+@available(iOS 16.0, macOS 13.0, *)
 extension DirectoryBackedArchiver.Error: LocalizedError {
     var errorDescription: String? {
         switch self {
@@ -183,7 +183,7 @@ extension DirectoryBackedArchiver.Error: LocalizedError {
     }
 }
 
-@available(macOS 13.0, *)
+@available(iOS 16.0, macOS 13.0, *)
 extension DirectoryBackedArchiver.FileSystem.Error: LocalizedError {
     var errorDescription: String? {
         switch self {

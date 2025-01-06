@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "CacheCow",
     platforms: [
-        .iOS(.v17),
+        .iOS(.v16),
         .macOS(.v13),
         .tvOS(.v14),
         .visionOS(.v1),
