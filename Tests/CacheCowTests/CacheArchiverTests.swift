@@ -8,7 +8,7 @@
 
 import Testing
 
-import CacheCow
+@testable import CacheCow
 
 struct CacheArchiverTests {
 
