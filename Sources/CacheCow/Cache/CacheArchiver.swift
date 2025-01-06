@@ -19,6 +19,21 @@ public actor CacheArchiver
     }
     
     nonisolated
+    public func load<Key, Value>() -> Cache<Key, Value>?
+    where Key: Codable, Value: Codable,
+          Key: Sendable, Value: Sendable {
+        do {
+            let freezeDried = try Cache<Key, Value>.FreezeDried.readFromFile(named: name, group: groupID)
+            return Cache(freezeDried: freezeDried)
+        }
+        catch {
+            print("Could not load cache named \(name) \(groupID.map { "with group id \($0)" } ?? "with no group id")")
+            print(error.localizedDescription)
+            return Cache()
+        }
+    }
+    
+    nonisolated
     public func saveCacheToFile<Key, Value>(_ cache: Cache<Key, Value>) async throws
     where Key: Hashable,
           Key: Codable, Value: Codable,
