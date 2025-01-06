@@ -5,10 +5,13 @@
 //  Created by Joseph Wardell on 1/6/25.
 //
 
+import Foundation
+
 public actor CacheArchiver
 {
     let name: String
     let groupID: String?
+    let filemanager: FileManager
     
     public init(
         name: String,
@@ -16,6 +19,7 @@ public actor CacheArchiver
     ) {
         self.name = name
         self.groupID = groupID
+        self.filemanager = FileManager()
     }
     
     nonisolated
@@ -38,6 +42,6 @@ public actor CacheArchiver
     }
     
     private func save<Key, Value>(_ freezeDried: Cache<Key, Value>.FreezeDried) async throws {
-        try freezeDried.saveToFile(named: name, group: groupID)
+        try freezeDried.saveToFile(named: name, group: groupID, using: filemanager)
     }
 }
