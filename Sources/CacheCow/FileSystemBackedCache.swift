@@ -106,8 +106,14 @@ extension URL: CacheKey {
 @available(macOS 13.0, *)
 extension FileSystemBackedCache where Key == URL {
     
-    enum Error: Swift.Error {
-        case noDirectory
+    enum Error: Swift.Error, LocalizedError {
+        case noDirectory(name: String, group: String?)
+        
+        var errorDescription: String? {
+            switch self {
+            case .noDirectory(let name, let group): "There is no directory that can be used as a FileSystemBackedCache with name \(name) and \(group.map { "group: \($0)" } ?? "no group id")"
+            }
+        }
     }
     
     static func urlDirectoryCache(
@@ -125,7 +131,7 @@ extension FileSystemBackedCache where Key == URL {
         encode: @escaping (Value) -> Data?,
         decode: @escaping (Data) -> Value?
     ) async throws -> FileSystemBackedCache<URL, Value> {
-        guard let directory = FileManager.default.cacheURL(named: name, group: group) else { throw Error.noDirectory }
+        guard let directory = FileManager.default.cacheURL(named: name, group: group) else { throw Error.noDirectory(name: name, group: group) }
         let archiver = try await DirectoryBackedArchiver(at: directory)
         return FileSystemBackedCache(encode: encode, decode: decode, archiver: archiver)
     }
