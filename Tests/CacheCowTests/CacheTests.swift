@@ -224,28 +224,25 @@ struct CacheTests {
             #expect(sut.countLimit == expected)
         }
     }
-    
+        
     struct Encoding {
+
+        let helper = CodableHelper()
+        
         @Test func round_trip_for_empty_cache() async throws {
             let (sut, _) = CacheTests.makeSUT()
-            let encoder = JSONEncoder()
-            let decoder = JSONDecoder()
-            
-            let data = try encoder.encode(sut)
-            let decoded = try decoder.decode(Cache<String, String>.self, from: data)
+  
+            let decoded = try helper.roundTripJSONEncodeDecode(sut)
             
             #expect(decoded.isEmpty)
         }
 
         @Test func round_trip_for_cache_with_objects() async throws {
             let (sut, _) = CacheTests.makeSUT()
-            let encoder = JSONEncoder()
-            let decoder = JSONDecoder()
             
             insertSomeEntries(into: sut)
             
-            let data = try encoder.encode(sut)
-            let decoded = try decoder.decode(Cache<String, String>.self, from: data)
+            let decoded = try helper.roundTripJSONEncodeDecode(sut)
             
             #expect(Set(sut.keys) == Set(decoded.keys))
             for key in decoded.keys {
