@@ -19,7 +19,7 @@ public protocol CacheKey {
     func cacheKey() -> String
 }
 
-public func cacheValue(of cacheKey: CacheKey) -> String {
+func cacheValue(of cacheKey: CacheKey) -> String {
         let charactersToRemoved = CharacterSet.whitespacesAndNewlines
             .union(.punctuationCharacters)
     return cacheKey.cacheKey().components(separatedBy: charactersToRemoved)
