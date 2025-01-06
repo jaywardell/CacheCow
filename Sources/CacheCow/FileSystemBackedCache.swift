@@ -116,7 +116,7 @@ extension FileSystemBackedCache where Key == URL {
         }
     }
     
-    static func urlDirectoryCache(
+    public static func urlDirectoryCache(
         at directory: URL,
         encode: @escaping (Value) -> Data?,
         decode: @escaping (Data) -> Value?
@@ -125,7 +125,7 @@ extension FileSystemBackedCache where Key == URL {
         return FileSystemBackedCache(encode: encode, decode: decode, archiver: archiver)
     }
     
-    static func urlDirectoryCache(
+    public  static func urlDirectoryCache(
         named name: String,
         in group: String? = nil,
         encode: @escaping (Value) -> Data?,

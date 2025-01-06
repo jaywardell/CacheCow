@@ -25,6 +25,14 @@ public final class Cache<Key: Hashable, Value> {
         wrapped.delegate = keyTracker
     }
     
+    /// The maximum number of objects the cache should hold.
+    ///
+    /// Discussion
+    /// returns the countLimit for the wrapped NSCache.
+    ///
+    /// Note that this may or may not be enforced by NSCache.
+    public var countLimit: Int { wrapped.countLimit }
+
     private func insert(_ entry: Entry) {
         wrapped.setObject(entry, forKey: WrappedKey(entry.key))
         keyTracker.keys.insert(entry.key)
@@ -50,13 +58,6 @@ extension Cache: Caching {
     public var count: Int { keyTracker.keys.count }
     public var isEmpty: Bool { keyTracker.keys.isEmpty }
 
-    /// The maximum number of objects the cache should hold.
-    ///
-    /// Discussion
-    /// returns the countLimit for the wrapped NSCache.
-    ///
-    /// Note that this may or may not be enforced by NSCache.
-    public var countLimit: Int { wrapped.countLimit }
     public func insert(_ value: Value, for key: Key) {
         let date = entryLifetime.map { dateProvider().addingTimeInterval($0) } ?? .distantFuture
         let entry = Entry(key: key, value: value, expirationDate: date)
