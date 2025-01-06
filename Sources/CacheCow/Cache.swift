@@ -162,30 +162,30 @@ public extension Cache where Key: Codable, Value: Codable {
         case pathDoesNotExist(name: String, group: String?)
     }
     
-//    private static func cacheURL(named name: String,
-//                                 group: String?,
-//                                 using fileManager: FileManager) -> URL? {
-//        let folderURL: URL?
-//        
-//        if let group {
-//            guard let directory = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: group) else { return nil }
-//            
-//            folderURL = directory
-//                .appendingPathComponent("Library")
-//                .appendingPathComponent("Caches")
-//        }
-//        else {
-//            let folderURLs = fileManager.urls(
-//                for: .cachesDirectory,
-//                in: .userDomainMask
-//            )
-//            folderURL = folderURLs.first
-//        }
-//        
-//        guard let folderURL else { return nil }
-//        
-//        return folderURL.appendingPathComponent(name + ".cache")
-//    }
+    private static func cacheURL(named name: String,
+                                 group: String?,
+                                 using fileManager: FileManager) -> URL? {
+        let folderURL: URL?
+        
+        if let group {
+            guard let directory = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: group) else { return nil }
+            
+            folderURL = directory
+                .appendingPathComponent("Library")
+                .appendingPathComponent("Caches")
+        }
+        else {
+            let folderURLs = fileManager.urls(
+                for: .cachesDirectory,
+                in: .userDomainMask
+            )
+            folderURL = folderURLs.first
+        }
+        
+        guard let folderURL else { return nil }
+        
+        return folderURL.appendingPathComponent(name + ".cache")
+    }
     
     @discardableResult
     func saveToFile(
@@ -193,8 +193,8 @@ public extension Cache where Key: Codable, Value: Codable {
         group: String? = nil,
        using fileManager: FileManager = .default
     ) throws -> URL {
-        guard let fileURL = fileManager.cacheURL(named: name, group: group) else {
-            throw Error.pathDoesNotExist
+        guard let fileURL = Self.cacheURL(named: name, group: group, using: fileManager) else {
+            throw Error.pathDoesNotExist(name: name, group: group)
         }
         
         let directory = fileURL.deletingLastPathComponent()
@@ -210,8 +210,8 @@ public extension Cache where Key: Codable, Value: Codable {
         group: String? = nil,
         using fileManager: FileManager = .default
     ) throws -> Cache {
-        guard let fileURL = fileManager.cacheURL(named: name, group: group) else {
-            throw Error.pathDoesNotExist
+        guard let fileURL = cacheURL(named: name, group: group, using: fileManager) else {
+            throw Error.pathDoesNotExist(name: name, group: group)
         }
         return try readAsJSON(from: fileURL)
     }
