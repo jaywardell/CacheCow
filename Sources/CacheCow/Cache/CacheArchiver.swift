@@ -22,11 +22,12 @@ public actor CacheArchiver
         self.filemanager = FileManager()
     }
     
+    nonisolated
     public func load<Key, Value>() throws -> Cache<Key, Value>
     where Key: Codable, Value: Codable,
           Key: Sendable, Value: Sendable {
 
-              let freezeDried = try Cache<Key, Value>.FreezeDried.readFromFile(named: name, group: groupID, using: filemanager)
+              let freezeDried = try Cache<Key, Value>.FreezeDried.readFromFile(named: name, group: groupID)
               return Cache(freezeDried: freezeDried)
     }
     
