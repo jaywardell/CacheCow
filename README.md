@@ -1,8 +1,8 @@
 #  CacheCow
 
-CacheCow is an attempt to write a modern Cache in Swift.
+CacheCow is a simple modern Cache in Swift.
 
-It offers basically two types, both of which follow the `Caching` protocol 
+It offers basically two types, both of which follow the `Caching` protocol: 
 
     public protocol Caching {
         associatedtype Key
