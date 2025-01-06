@@ -142,22 +142,44 @@ private extension Cache {
 }
 
 extension Cache.Entry: Codable where Key: Codable, Value: Codable {}
-extension Cache: Codable where Key: Codable, Value: Codable {
-    convenience public init(from decoder: Decoder) throws {
-        self.init()
-
-        let container = try decoder.singleValueContainer()
-        let entries = try container.decode([Entry].self)
-        entries.forEach(insert)
+public extension Cache
+where Key: Codable, Value: Codable,
+      Key: Sendable, Value: Sendable {
+    
+    struct FreezeDried: Codable, Sendable {
+        let dictionary: [Key : Value]
+        
+        public static var empty: FreezeDried {
+            FreezeDried(dictionary: [:])
+        }
+    }
+  
+    var freezeDried: FreezeDried {
+        var out = [Key : Value]()
+        keyTracker.keys.forEach { key in
+            out[key] = value(for: key)
+        }
+        return FreezeDried(dictionary: out)
     }
     
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(keyTracker.keys.compactMap { entry(for: $0) } )
+    convenience init(freezeDried: FreezeDried?,
+                     dateProvider: @escaping () -> Date = Date.init,
+                     entryLifetime: TimeInterval? = nil,
+                     countLimit: Int = 0) {
+
+        self.init(dateProvider: dateProvider, entryLifetime: entryLifetime, countLimit: countLimit)
+        
+        freezeDried?.dictionary.forEach { key, value in
+            insert(value, for: key)
+        }
     }
 }
 
-public extension Cache where Key: Codable, Value: Codable {
+extension Cache.FreezeDried: Equatable
+where Key: Equatable, Value: Equatable
+{}
+
+public extension Cache.FreezeDried {
     
     enum Error: Swift.Error {
         case pathDoesNotExist(name: String, group: String?)
@@ -210,7 +232,7 @@ public extension Cache where Key: Codable, Value: Codable {
         named name: String,
         group: String? = nil,
         using fileManager: FileManager = .default
-    ) throws -> Cache {
+    ) throws -> Self {
         guard let fileURL = cacheURL(named: name, group: group, using: fileManager) else {
             throw Error.pathDoesNotExist(name: name, group: group)
         }
@@ -218,7 +240,7 @@ public extension Cache where Key: Codable, Value: Codable {
     }
 }
 
-extension Cache.Error: LocalizedError {
+extension Cache.FreezeDried.Error: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .pathDoesNotExist(let name, let groupID): "No file exists for name \(name) \(groupID.map { "with group id \($0)" } ?? "with no group id")"

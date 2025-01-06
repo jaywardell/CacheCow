@@ -232,9 +232,20 @@ struct CacheTests {
         @Test func round_trip_for_empty_cache() async throws {
             let (sut, _) = CacheTests.makeSUT()
   
-            let decoded = try helper.roundTripJSONEncodeDecode(sut)
+            let freezeDried = try helper.roundTripJSONEncodeDecode(sut.freezeDried)
+            let thawed = Cache(freezeDried: freezeDried)
             
-            #expect(decoded.isEmpty)
+            #expect(thawed.isEmpty)
+        }
+
+        @Test func round_trip_for_cache_with_objects_freeze_dried() async throws {
+            let (sut, _) = CacheTests.makeSUT()
+            
+            insertSomeEntries(into: sut)
+            
+            let freezeDried = try helper.roundTripJSONEncodeDecode(sut.freezeDried)
+
+            #expect(freezeDried == sut.freezeDried)
         }
 
         @Test func round_trip_for_cache_with_objects() async throws {
@@ -242,11 +253,12 @@ struct CacheTests {
             
             insertSomeEntries(into: sut)
             
-            let decoded = try helper.roundTripJSONEncodeDecode(sut)
-            
-            #expect(Set(sut.keys) == Set(decoded.keys))
-            for key in decoded.keys {
-                #expect(sut.value(for: key) == decoded.value(for: key))
+            let freezeDried = try helper.roundTripJSONEncodeDecode(sut.freezeDried)
+            let thawed = Cache(freezeDried: freezeDried)
+
+            #expect(Set(sut.keys) == Set(thawed.keys))
+            for key in thawed.keys {
+                #expect(sut.value(for: key) == thawed.value(for: key))
             }
         }
     }
@@ -260,12 +272,13 @@ struct CacheTests {
             insertSomeEntries(into: sut)
             
             let fm = FileManager()
-            let savedTo = try sut.saveToFile(named: filename, using: fm)
-            let retrieved = try Cache<String, String>.readFromFile(named: filename, using: fm)
+            let savedTo = try sut.freezeDried.saveToFile(named: filename, using: fm)
+            let freezeDried = try Cache<String, String>.FreezeDried.readFromFile(named: filename, using: fm)
+            let thawed = Cache(freezeDried: freezeDried)
             
-            #expect(Set(sut.keys) == Set(retrieved.keys))
-            for key in retrieved.keys {
-                #expect(sut.value(for: key) == retrieved.value(for: key))
+            #expect(Set(sut.keys) == Set(thawed.keys))
+            for key in thawed.keys {
+                #expect(sut.value(for: key) == thawed.value(for: key))
             }
 
             try fm.removeItem(at: savedTo)
