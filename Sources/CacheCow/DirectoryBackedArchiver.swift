@@ -15,11 +15,11 @@ class DirectoryBackedArchiver {
     private let files: FileSystem
     
     enum Error: Swift.Error {
-        case notAFile
+        case notAFile(url: URL)
     }
     
     init(at url: URL) async throws {
-        guard url.isFileURL else { throw Error.notAFile }
+        guard url.isFileURL else { throw Error.notAFile(url: url) }
         
         self.url = url
         self.files = FileSystem()
@@ -34,12 +34,12 @@ class DirectoryBackedArchiver {
 
 @available(macOS 13.0, *)
 extension DirectoryBackedArchiver {
-    private actor FileSystem {
+    fileprivate actor FileSystem {
         
         enum Error: Swift.Error {
-            case cannotUseURL
-            case fikeExists
-            case fileDoesNotExist
+            case urlIsNotDirectory(url: URL)
+            case fileExists(url: URL)
+            case fileDoesNotExist(url: URL)
         }
         
         private lazy var writer = {
@@ -52,7 +52,7 @@ extension DirectoryBackedArchiver {
                     return
                 }
                 else {
-                    throw Error.cannotUseURL
+                    throw Error.urlIsNotDirectory(url: url)
                 }
             }
             else {
@@ -61,19 +61,19 @@ extension DirectoryBackedArchiver {
         }
         
         func save(_ data: Data, to url: URL) async throws {
-            guard !writer.fileExists(atPath: url.path()) else { throw Error.fikeExists }
+            guard !writer.fileExists(atPath: url.path()) else { throw Error.fileExists(url: url) }
             
             try data.write(to: url)
         }
         
         func deleteFile(at url: URL) throws {
-            guard writer.fileExists(atPath: url.path()) else { throw Error.fileDoesNotExist }
+            guard writer.fileExists(atPath: url.path()) else { throw Error.fileDoesNotExist(url: url) }
             
             try writer.removeItem(at: url)
         }
         
         func deleteAllFiles(at url: URL) throws {
-            guard writer.fileExists(atPath: url.path()) else { throw Error.fileDoesNotExist }
+            guard writer.fileExists(atPath: url.path()) else { throw Error.fileDoesNotExist(url: url) }
 
             let oldURL = url
             let backupURL = url.deletingLastPathComponent().appending(component: url.lastPathComponent + ".old")
@@ -85,7 +85,7 @@ extension DirectoryBackedArchiver {
         }
         
         nonisolated func files(at url: URL) throws -> [String] {
-            guard FileManager.default.fileExists(atPath: url.path()) else { throw Error.fileDoesNotExist }
+            guard FileManager.default.fileExists(atPath: url.path()) else { throw Error.fileDoesNotExist(url: url) }
 
             return try FileManager.default.contentsOfDirectory(atPath: url.path())
         }
@@ -172,4 +172,28 @@ fileprivate extension Logger {
         
     /// Logs the view cycles like a view that appeared.
     static let directoryBachedArchiver = Logger(subsystem: "\(DirectoryBackedArchiver.self)", category: "directory backed archiver")
+}
+
+@available(macOS 13.0, *)
+extension DirectoryBackedArchiver.Error: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .notAFile(url: let url): "The url at \(url) does not represent a file URL"
+        }
+    }
+}
+
+@available(macOS 13.0, *)
+extension DirectoryBackedArchiver.FileSystem.Error: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+
+        case .urlIsNotDirectory(url: let url):
+            "Cannot use url \(url) because it is not a directory"
+        case .fileExists(url: let url):
+            "File already exists at \(url)"
+        case .fileDoesNotExist(url: let url):
+            "File does not exist at \(url)"
+        }
+    }
 }
