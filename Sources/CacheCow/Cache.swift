@@ -159,7 +159,7 @@ extension Cache: Codable where Key: Codable, Value: Codable {
 public extension Cache where Key: Codable, Value: Codable {
     
     enum Error: Swift.Error {
-        case pathDoesNotExist
+        case pathDoesNotExist(name: String, group: String?)
     }
     
 //    private static func cacheURL(named name: String,
@@ -214,5 +214,13 @@ public extension Cache where Key: Codable, Value: Codable {
             throw Error.pathDoesNotExist
         }
         return try readAsJSON(from: fileURL)
+    }
+}
+
+extension Cache.Error: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .pathDoesNotExist(let name, let groupID): "No file exists for name \(name) \(groupID.map { "with group id \($0)" } ?? "with no group id")"
+        }
     }
 }
