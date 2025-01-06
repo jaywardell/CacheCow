@@ -81,7 +81,6 @@ extension FileSystemBackedCache: Caching {
         }
     }
     
-    
     public var count: Int {
         archiver.keys.count
     }
@@ -93,8 +92,6 @@ extension FileSystemBackedCache: Caching {
     public func clear() {
         archiver.deleteAll()
     }
-    
-    
 }
 
 extension URL: CacheKey {
