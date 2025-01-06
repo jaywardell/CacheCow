@@ -142,7 +142,7 @@ private extension Cache {
 }
 
 extension Cache.Entry: Codable where Key: Codable, Value: Codable {}
-public extension Cache
+extension Cache
 where Key: Codable, Value: Codable,
       Key: Sendable, Value: Sendable {
     
@@ -179,7 +179,7 @@ extension Cache.FreezeDried: Equatable
 where Key: Equatable, Value: Equatable
 {}
 
-public extension Cache.FreezeDried {
+extension Cache.FreezeDried {
     
     enum Error: Swift.Error {
         case pathDoesNotExist(name: String, group: String?)
