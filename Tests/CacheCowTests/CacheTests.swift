@@ -224,6 +224,7 @@ struct CacheTests {
             #expect(sut.countLimit == expected)
         }
     }
+    
     struct Encoding {
         @Test func round_trip_for_empty_cache() async throws {
             let (sut, _) = CacheTests.makeSUT()
