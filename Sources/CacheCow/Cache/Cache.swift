@@ -184,39 +184,14 @@ extension Cache.FreezeDried {
     enum Error: Swift.Error {
         case pathDoesNotExist(name: String, group: String?)
     }
-    
-    private static func cacheURL(named name: String,
-                                 group: String?,
-                                 using fileManager: FileManager) -> URL? {
-        let folderURL: URL?
         
-        if let group {
-            guard let directory = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: group) else { return nil }
-            
-            folderURL = directory
-                .appendingPathComponent("Library")
-                .appendingPathComponent("Caches")
-        }
-        else {
-            let folderURLs = fileManager.urls(
-                for: .cachesDirectory,
-                in: .userDomainMask
-            )
-            folderURL = folderURLs.first
-        }
-        
-        guard let folderURL else { return nil }
-        
-        return folderURL.appendingPathComponent(name + ".cache")
-    }
-    
     @discardableResult
     func saveToFile(
         named name: String,
         group: String? = nil,
        using fileManager: FileManager = .default
     ) throws -> URL {
-        guard let fileURL = Self.cacheURL(named: name, group: group, using: fileManager) else {
+        guard let fileURL = fileManager.cacheURL(named: name, group: group) else {
             throw Error.pathDoesNotExist(name: name, group: group)
         }
         
@@ -233,7 +208,7 @@ extension Cache.FreezeDried {
         group: String? = nil,
         using fileManager: FileManager = .default
     ) throws -> Self {
-        guard let fileURL = cacheURL(named: name, group: group, using: fileManager) else {
+        guard let fileURL = fileManager.cacheURL(named: name, group: group) else {
             throw Error.pathDoesNotExist(name: name, group: group)
         }
         return try readAsJSON(from: fileURL)
