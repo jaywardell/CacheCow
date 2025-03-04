@@ -9,7 +9,7 @@ import Foundation
 import OSLog
 
 @available(iOS 16.0, macOS 13.0, *)
-class DirectoryBackedArchiver {
+final class DirectoryBackedArchiver: Sendable {
     
     let url: URL
     private let files: FileSystem

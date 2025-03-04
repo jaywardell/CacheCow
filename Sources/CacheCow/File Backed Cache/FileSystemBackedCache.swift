@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol FileSystemBackedArchiver {
+public protocol FileSystemBackedArchiver: Sendable {
     var keys: any Collection<String> { get }
     func archive(_ data: Data, for key: String)
     func data(at key: String) -> Data?
@@ -15,7 +15,7 @@ public protocol FileSystemBackedArchiver {
     func deleteAll()
 }
 
-public protocol CacheKey {
+public protocol CacheKey: Sendable {
     func cacheKey() -> String
 }
 
@@ -26,16 +26,16 @@ func cacheValue(of key: CacheKey) -> String {
         .joined()
 }
 
-public final class FileSystemBackedCache<Key: CacheKey, Value> {
+public final class FileSystemBackedCache<Key: CacheKey, Value: Sendable>: Sendable {
     
-    private let encode: (Value) -> Data?
-    private let decode: (Data) -> Value?
-    private let dateProvider: () -> Date
+    private let encode: @Sendable (Value) -> Data?
+    private let decode: @Sendable (Data) -> Value?
+    private let dateProvider: @Sendable () -> Date
     private let archiver: FileSystemBackedArchiver
     
-    public init(encode: @escaping (Value) -> Data?,
-                decode: @escaping (Data) -> Value?,
-                dateProvider: @escaping () -> Date = Date.init,
+    public init(encode: @Sendable @escaping (Value) -> Data?,
+                decode: @Sendable @escaping (Data) -> Value?,
+                dateProvider: @Sendable @escaping () -> Date = Date.init,
                 archiver: FileSystemBackedArchiver) {
         
         self.encode = encode
@@ -114,18 +114,18 @@ extension FileSystemBackedCache where Key == URL {
     
     public static func urlDirectoryCache(
         at directory: URL,
-        encode: @escaping (Value) -> Data?,
-        decode: @escaping (Data) -> Value?
+        encode: @Sendable @escaping (Value) -> Data?,
+        decode: @Sendable @escaping (Data) -> Value?
     ) async throws -> FileSystemBackedCache<URL, Value> {
         let archiver = try await DirectoryBackedArchiver(at: directory)
         return FileSystemBackedCache(encode: encode, decode: decode, archiver: archiver)
     }
     
-    public  static func urlDirectoryCache(
+    public static func urlDirectoryCache(
         named name: String,
         in group: String? = nil,
-        encode: @escaping (Value) -> Data?,
-        decode: @escaping (Data) -> Value?
+        encode: @Sendable @escaping (Value) -> Data?,
+        decode: @Sendable @escaping (Data) -> Value?
     ) async throws -> FileSystemBackedCache<URL, Value> {
         guard let directory = FileManager.default.cacheURL(named: name, group: group) else { throw Error.noDirectory(name: name, group: group) }
         let archiver = try await DirectoryBackedArchiver(at: directory)
