@@ -207,8 +207,8 @@ struct FileSystemBackedCacheTests {
         return expected
     }
     
-    private final class DummyTime {
-        var time: Date
+    private final class DummyTime: Sendable {
+        nonisolated(unsafe) var time: Date
         
         init(time: Date = .now) {
             self.time = time
@@ -226,10 +226,10 @@ struct FileSystemBackedCacheTests {
     
     private final class DummyArchiver: FileSystemBackedArchiver {
         
-        private(set) var insertCount = 0
-        private(set) var removeAllCount = 0
-        private(set) var inserted = [String:Data]()
-        private(set) var removed = [String]()
+        nonisolated(unsafe) private(set) var insertCount = 0
+        nonisolated(unsafe) private(set) var removeAllCount = 0
+        nonisolated(unsafe) private(set) var inserted = [String:Data]()
+        nonisolated(unsafe) private(set) var removed = [String]()
         
         var keys: any Collection<String> {
             inserted.keys
