@@ -7,24 +7,30 @@
 //
 
 import Testing
+import Foundation
 
 @testable import CacheCow
 
-struct CacheArchiverTests {
+class CacheArchiverTests {
 
     @Test func test_archives_correctly() async throws {
         let cache = Cache<String, String>()
-        let name = #function
-        let archiver = CacheArchiver(name: name)
+        let archiver = CacheArchiver(name: filename)
         
         CacheArchiverTests.insertSomeEntries(into: cache)
             
         try await archiver.saveCacheToFile(cache)
-        let thawed = try Cache<String, String>.FreezeDried.readFromFile(named: name)
+        let thawed = try Cache<String, String>.FreezeDried.readFromFile(named: filename)
 
         #expect(thawed == cache.freezeDried)
     }
 
+    deinit {
+        let fm = FileManager()
+        let cacheURL = fm.cacheURL(named: filename, group: nil)
+        try! fm.removeItem(at: cacheURL!)
+    }
+    
     @discardableResult
     private static func insertSomeEntries(into sut: Cache<String, String>) -> [String] {
         let expectedCount = Int.random(in: 2 ... 20)
@@ -38,4 +44,5 @@ struct CacheArchiverTests {
         return expected
     }
 
+    private let filename = "testfile"
 }
