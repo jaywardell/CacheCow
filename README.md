@@ -129,6 +129,8 @@ try await archiver.saveCacheToFile(cache)
 
 You provide the encoding and decoding closures, which makes it suitable for images, blobs, or your own serialized types.
 
+Factory methods that create a directory-backed cache take a `URL?`. In normal use, pass a concrete directory URL.
+
 ### Create a cache in a known directory
 
 ```swift
@@ -148,18 +150,27 @@ cache.insert(Data(), for: url)
 let imageData = cache[url]
 ```
 
-### Create a cache in the system caches directory
+### Create a cache in the system caches directory for caches that key to URL
 
 ```swift
 import CacheCow
 import Foundation
 
-let cache = try await FileSystemBackedCache<URL, Data>.urlDirectoryCache(
-    named: "RemoteImages"
-)
+let directory = try URL.cacheDirectoryURL(named: "RemoteImages")
+let cache = try await FileSystemBackedCache<URL, Data>.urlDirectoryCache(at: directory)
 ```
 
-Pass `in: "your.app.group"` only when the cache should live in an app group container.
+`cacheDirectoryURL(named:in:)` returns `URL?`. If it returns `nil`, passing that value into `urlDirectoryCache(at:)` causes the cache factory to throw.
+
+Pass `in: "your.app.group"` to `URL.cacheDirectoryURL(named:in:)` when the cache should live in an app group container.
+
+If you already have an optional URL from elsewhere, you can pass it directly:
+
+```swift
+let cache = try await FileSystemBackedCache<URL, Data>.urlDirectoryCache(at: directoryURL)
+```
+
+That call throws if `directoryURL` is `nil`.
 
 ### Using custom value types
 
@@ -173,8 +184,9 @@ struct Profile: Codable, Sendable {
     let name: String
 }
 
+let directory = try URL.cacheDirectoryURL(named: "Profiles")
 let cache = try await FileSystemBackedCache<URL, Profile>.urlDirectoryCache(
-    named: "Profiles",
+    at: directory,
     encode: { try? JSONEncoder().encode($0) },
     decode: { try? JSONDecoder().decode(Profile.self, from: $0) }
 )

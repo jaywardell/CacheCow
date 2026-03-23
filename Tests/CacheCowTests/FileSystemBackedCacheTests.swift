@@ -30,7 +30,9 @@ struct FileSystemBackedCacheTests {
         @Test func creates_named_cache_using_json_encoding() async throws {
             guard #available(iOS 16.0, macOS 13.0, *) else { return }
             let name = "FileSystemBackedCacheTests-\(UUID().uuidString)"
-            let sut = try await FileSystemBackedCache<URL, TestValue>.urlDirectoryCache(named: name)
+            let directory = try URL.cacheDirectoryURL(named: name)
+            #expect(directory != nil)
+            let sut = try await FileSystemBackedCache<URL, TestValue>.urlDirectoryCache(at: directory)
             let key = URL(string: "https://example.com/profile.json")!
             let expected = TestValue(message: "hello")
 
@@ -39,8 +41,17 @@ struct FileSystemBackedCacheTests {
 
             #expect(sut.value(for: key) == expected)
 
-            let cacheURL = try #require(FileManager.default.cacheURL(named: name, group: nil))
-            try? FileManager.default.removeItem(at: cacheURL)
+            if let directory {
+                try? FileManager.default.removeItem(at: directory)
+            }
+        }
+
+        @Test func throws_if_directory_url_is_nil() async throws {
+            guard #available(iOS 16.0, macOS 13.0, *) else { return }
+
+            await #expect(throws: FileSystemBackedCache<URL, TestValue>.Error.noDirectoryProvided) {
+                _ = try await FileSystemBackedCache<URL, TestValue>.urlDirectoryCache(at: nil)
+            }
         }
     }
 
@@ -69,6 +80,20 @@ struct FileSystemBackedCacheTests {
             sut.insert(expected, for: anyKey)
             
             #expect(archiver.inserted[cacheValue(of: anyKey)] == expected.data(using: .utf8))
+        }
+    }
+
+    struct urlDirectoryCache {
+        @Test func throws_if_directory_url_is_nil() async throws {
+            guard #available(iOS 16.0, macOS 13.0, *) else { return }
+
+            await #expect(throws: FileSystemBackedCache<URL, String>.Error.noDirectoryProvided) {
+                _ = try await FileSystemBackedCache<URL, String>.urlDirectoryCache(
+                    at: nil,
+                    encode: { $0.data(using: .utf8) },
+                    decode: { String(data: $0, encoding: .utf8) }
+                )
+            }
         }
     }
     
