@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension Encodable {
+extension Encodable {
     
     /// Encodes the value as JSON and writes it to a file URL.
     ///
@@ -24,7 +24,7 @@ public extension Encodable {
 
 }
 
-public extension Decodable {
+extension Decodable {
     
     /// Reads JSON data from a file URL and decodes it into the receiving type.
     ///
