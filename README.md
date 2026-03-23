@@ -1,51 +1,229 @@
-#  CacheCow
+# CacheCow
 
-CacheCow is a simple modern Cache in Swift.
+CacheCow is a small Swift package for caching values in memory or on disk.
 
-It offers basically two types, both of which follow the `Caching` protocol: 
+It includes:
 
-    public protocol Caching {
-        associatedtype Key
-        associatedtype Value
-                
-        var count: Int { get }
-        var isEmpty: Bool { get }
+- `Cache`, an in-memory cache backed by `NSCache`
+- `CacheArchiver`, a persistence helper for saving and loading `Cache`
+- `FileSystemBackedCache`, a cache that stores each value as a separate file
+- `Caching`, a shared protocol for basic cache operations
 
-        func insert(_ value: Value, for key: Key)
+## Requirements
 
-        func value(for key: Key) -> Value?
+- Swift 6.0+
+- iOS 16+
+- macOS 13+
+- tvOS 14+
+- visionOS 1+
+- watchOS 9+
 
-        func removeValue(for key: Key)
-        
-        func clear()
+## Installation
 
-        subscript(key: Key) -> Value? { get set }
+Add CacheCow to your `Package.swift` dependencies:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/your-org/CacheCow.git", from: "1.0.0")
+]
+```
+
+Then add the product to your target:
+
+```swift
+.target(
+    name: "YourTarget",
+    dependencies: [
+        .product(name: "CacheCow", package: "CacheCow")
+    ]
+)
+```
+
+## Overview
+
+Both cache implementations follow the same core API:
+
+```swift
+public protocol Caching {
+    associatedtype Key
+    associatedtype Value
+
+    var count: Int { get }
+    var isEmpty: Bool { get }
+
+    func insert(_ value: Value, for key: Key)
+    func value(for key: Key) -> Value?
+    func removeValue(for key: Key)
+    func clear()
+
+    subscript(key: Key) -> Value? { get set }
+}
+```
+
+Use `Cache` when you want fast in-memory storage with optional expiration.
+
+Use `FileSystemBackedCache` when values are large, expensive to recreate, or should survive process lifetime by being stored in files.
+
+## Using `Cache`
+
+`Cache` is a generic in-memory cache with Swift-native keys and values.
+
+```swift
+import CacheCow
+
+let cache = Cache<String, Data>(
+    entryLifetime: 60 * 10,
+    countLimit: 100
+)
+
+cache.insert(Data(), for: "avatar")
+
+let value = cache.value(for: "avatar")
+let sameValue = cache["avatar"]
+
+cache["avatar"] = nil
+cache.clear()
+```
+
+### Expiration behavior
+
+- `entryLifetime` is measured in seconds.
+- If `entryLifetime` is `nil`, cached values do not expire automatically.
+- Expired entries are removed when they are accessed.
+- `countLimit` is passed through to `NSCache`, which treats it as advisory rather than guaranteed.
+
+## Persisting `Cache` with `CacheArchiver`
+
+`CacheArchiver` lets you save a `Cache` to disk and load it again later.
+
+This requires `Key` and `Value` to conform to `Codable` and `Sendable`.
+
+```swift
+import CacheCow
+
+let archiver = CacheArchiver(name: "recent-searches")
+
+let cache: Cache<String, [String]>
+do {
+    cache = try archiver.load()
+} catch {
+    cache = Cache()
+}
+
+cache.insert(["swift", "caching"], for: "queries")
+
+try await archiver.saveCacheToFile(cache)
+```
+
+### When to use `CacheArchiver`
+
+- Use it to restore an in-memory cache between launches.
+- Use `name` to choose the cache file name.
+- Use `groupID` when the cache should live in an app group container.
+
+`CacheArchiver` is an `actor`, so writes are coordinated safely in concurrent code.
+
+## Using `FileSystemBackedCache`
+
+`FileSystemBackedCache` stores each cached value as raw `Data` in a file chosen by its key.
+
+You provide the encoding and decoding closures, which makes it suitable for images, blobs, or your own serialized types.
+
+### Create a cache in a known directory
+
+```swift
+import CacheCow
+import Foundation
+
+let directory = FileManager.default.temporaryDirectory
+    .appending(path: "ImageCache", directoryHint: .isDirectory)
+
+let cache = try await FileSystemBackedCache<URL, Data>.urlDirectoryCache(
+    at: directory
+)
+
+let url = URL(string: "https://example.com/image.png")!
+cache.insert(Data(), for: url)
+
+let imageData = cache[url]
+```
+
+### Create a cache in the system caches directory
+
+```swift
+import CacheCow
+import Foundation
+
+let cache = try await FileSystemBackedCache<URL, Data>.urlDirectoryCache(
+    named: "RemoteImages"
+)
+```
+
+Pass `in: "your.app.group"` only when the cache should live in an app group container.
+
+### Using custom value types
+
+For custom types, you can provide callbacks to encode and decode them yourself:
+
+```swift
+import CacheCow
+import Foundation
+
+struct Profile: Codable, Sendable {
+    let name: String
+}
+
+let cache = try await FileSystemBackedCache<URL, Profile>.urlDirectoryCache(
+    named: "Profiles",
+    encode: { try? JSONEncoder().encode($0) },
+    decode: { try? JSONDecoder().decode(Profile.self, from: $0) }
+)
+```
+
+### Key behavior
+
+- `URL` already conforms to `CacheKey`.
+- `String` already conforms to `CacheKey`.
+- You can adopt `CacheKey` on your own types when you need a stable string identifier.
+
+```swift
+struct UserID: CacheKey {
+    let rawValue: String
+
+    func cacheKey() -> String {
+        rawValue
     }
+}
+```
 
-## `Cache` is a simple, in-memory, key-value cache. 
-It's a wrapper for NSCache, but with Swift semantics. It's able to cache pretty much any swift type, not just NSObject.
+Choose keys carefully. A stable, unique key is required for correct cache hits.
 
-It's based on the article at https://www.swiftbysundell.com/articles/caching-in-swift/
-by John Sundell, and follows his example very closely. 
+## Choosing the Right Cache
 
-### Saving a Cache to Disk
-To save a `Cache` to disk, use a `CacheArchiver`:
+Use `Cache` when:
 
-    // loading a Cache from disk
-    self.archiver = CacheArchiver(name: "name of cache", groupID: "optional app group ID")
-    do {
-        self.cache = try archiver.load()
-    }
-    catch {
-        self.cache = Cache()
-        print(error.localizedDescription)
-    }
-    
-    // writing the cache to disk
-    try await archiver.saveCacheToFile(cache)
+- You want fast in-memory lookups
+- Automatic eviction through `NSCache` is acceptable
+- You want optional expiration support
 
-`CacheArchiver` is an actor, so it prevents multiple simultaneous writes to disk.
+Use `FileSystemBackedCache` when:
 
-## `FileSystemBackedCache` is a file-system backed cache 
-It stores its data in individual files in a directory, one file for each key/value pair. It's useful for caching large blobs of data like images retrieved from the network.
- 
+- Values are large
+- Values should be stored as files
+- Recreating the data is expensive
+- You want the cache contents to survive memory pressure
+
+Use `Cache` plus `CacheArchiver` when:
+
+- You want normal in-memory behavior while the app runs
+- You also want to save and restore that cache across launches
+
+## Notes
+
+- `FileSystemBackedCache` is available on iOS 16 and macOS 13 or newer.
+- Encoding failures in `FileSystemBackedCache` are ignored by design; failed writes simply do not produce a cached value.
+- File-backed values are addressed by sanitized string keys derived from `CacheKey`.
+
+## Acknowledgements
+
+The in-memory `Cache` implementation is based on John Sundell's article, ["Caching in Swift"](https://www.swiftbysundell.com/articles/caching-in-swift/), with further modifications for this package.
