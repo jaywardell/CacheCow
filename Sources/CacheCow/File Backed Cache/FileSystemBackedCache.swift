@@ -70,6 +70,25 @@ public final class FileSystemBackedCache<Key: CacheKey, Value: Sendable>: Sendab
     }
 }
 
+extension FileSystemBackedCache where Value: Codable {
+    /// Creates a file-backed cache that encodes and decodes values as JSON.
+    ///
+    /// - Parameters:
+    ///   - dateProvider: A date supplier reserved for parity with other cache implementations.
+    ///   - archiver: The archiver responsible for storing and retrieving the encoded data.
+    public convenience init(
+        dateProvider: @Sendable @escaping () -> Date = Date.init,
+        archiver: FileSystemBackedArchiver
+    ) {
+        self.init(
+            encode: { try? JSONEncoder().encode($0) },
+            decode: { try? JSONDecoder().decode(Value.self, from: $0) },
+            dateProvider: dateProvider,
+            archiver: archiver
+        )
+    }
+}
+
 extension FileSystemBackedCache: Caching {
     
     
@@ -187,6 +206,37 @@ extension FileSystemBackedCache where Key == URL {
         guard let directory = FileManager.default.cacheURL(named: name, group: group) else { throw Error.noDirectory(name: name, group: group) }
         let archiver = try await DirectoryBackedArchiver(at: directory)
         return FileSystemBackedCache(encode: encode, decode: decode, archiver: archiver)
+    }
+}
+
+@available(iOS 16.0, macOS 13.0, *)
+extension FileSystemBackedCache where Value: Codable, Key == URL {
+    /// Creates a file-backed cache rooted at a specific directory URL and uses JSON for encoding.
+    ///
+    /// - Parameter directory: The directory used to store archived values.
+    /// - Returns: A file-backed cache that uses the provided directory.
+    public static func urlDirectoryCache(
+        at directory: URL
+    ) async throws -> FileSystemBackedCache<URL, Value> {
+        let archiver = try await DirectoryBackedArchiver(at: directory)
+        return FileSystemBackedCache(archiver: archiver)
+    }
+
+    /// Creates a file-backed cache rooted in the system caches directory and uses JSON for encoding.
+    ///
+    /// - Parameters:
+    ///   - name: The cache directory name without the `.cache` extension.
+    ///   - group: An optional app group identifier to resolve the cache directory from.
+    /// - Returns: A file-backed cache that uses the resolved cache directory.
+    public static func urlDirectoryCache(
+        named name: String,
+        in group: String? = nil
+    ) async throws -> FileSystemBackedCache<URL, Value> {
+        guard let directory = FileManager.default.cacheURL(named: name, group: group) else {
+            throw Error.noDirectory(name: name, group: group)
+        }
+        let archiver = try await DirectoryBackedArchiver(at: directory)
+        return FileSystemBackedCache(archiver: archiver)
     }
 }
 

@@ -11,7 +11,39 @@ import Foundation
 @testable import CacheCow
 
 struct FileSystemBackedCacheTests {
+            
+    struct codableURLDirectoryCache {
         
+        @Test func creates_cache_for_directory_url_using_json_encoding() async throws {
+            guard #available(iOS 16.0, macOS 13.0, *) else { return }
+            let directory = makeTemporaryDirectory(named: #function)
+            let sut = try await FileSystemBackedCache<URL, TestValue>.urlDirectoryCache(at: directory)
+            let key = URL(string: "https://example.com/profile.json")!
+            let expected = TestValue(message: "hello")
+
+            sut.insert(expected, for: key)
+            try await Task.sleep(for: .milliseconds(100))
+
+            #expect(sut.value(for: key) == expected)
+        }
+
+        @Test func creates_named_cache_using_json_encoding() async throws {
+            guard #available(iOS 16.0, macOS 13.0, *) else { return }
+            let name = "FileSystemBackedCacheTests-\(UUID().uuidString)"
+            let sut = try await FileSystemBackedCache<URL, TestValue>.urlDirectoryCache(named: name)
+            let key = URL(string: "https://example.com/profile.json")!
+            let expected = TestValue(message: "hello")
+
+            sut.insert(expected, for: key)
+            try await Task.sleep(for: .milliseconds(100))
+
+            #expect(sut.value(for: key) == expected)
+
+            let cacheURL = try #require(FileManager.default.cacheURL(named: name, group: nil))
+            try? FileManager.default.removeItem(at: cacheURL)
+        }
+    }
+
     struct insert {
         
         @Test func calls_archiver() async throws {
@@ -174,6 +206,19 @@ struct FileSystemBackedCacheTests {
         }
     }
         
+    struct codableInitializer {
+        
+        @Test func stores_and_reads_values_using_json() async throws {
+            let archiver = DummyArchiver()
+            let sut = FileSystemBackedCache<String, TestValue>(archiver: archiver)
+            let expected = TestValue(message: "hello")
+
+            sut.insert(expected, for: anyKey)
+
+            #expect(sut.value(for: anyKey) == expected)
+        }
+    }
+
     // MARK: - Helpers
     
     private static func makeSUT(lifetime: TimeInterval = 60) -> (FileSystemBackedCache<String, String>, DummyTime, DummyArchiver) {
@@ -193,6 +238,18 @@ struct FileSystemBackedCacheTests {
     }
     
     private static let anyKey: String  = "any-key"
+
+    private struct TestValue: Codable, Equatable, Sendable {
+        let message: String
+    }
+
+    @available(iOS 16.0, macOS 13.0, *)
+    private static func makeTemporaryDirectory(named name: String) -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appending(path: "CacheCowTests-\(name)-\(UUID().uuidString)", directoryHint: .isDirectory)
+        try? FileManager.default.removeItem(at: url)
+        return url
+    }
     
     @discardableResult
     private static func insertSomeEntries(into sut: FileSystemBackedCache<String, String>) -> [String] {
