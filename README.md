@@ -192,6 +192,24 @@ let cache = try await FileSystemBackedCache<URL, Profile>.urlDirectoryCache(
 )
 ```
 
+### Using the JSON convenience factory
+
+When your cached value is `Codable`, you can skip the explicit JSON closures and use `directoryCache(dateProvider:at:)` instead:
+
+```swift
+import CacheCow
+import Foundation
+
+struct Profile: Codable, Sendable {
+    let name: String
+}
+
+let directory = URL.cacheDirectoryURL(named: "Profiles")
+let cache = try await FileSystemBackedCache<String, Profile>.directoryCache(at: directory)
+```
+
+This factory uses `JSONEncoder` and `JSONDecoder` internally. Like the URL-based factories, it throws if the directory URL is `nil`.
+
 ### Key behavior
 
 - `URL` already conforms to `CacheKey`.

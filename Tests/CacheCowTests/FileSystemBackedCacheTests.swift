@@ -55,6 +55,28 @@ struct FileSystemBackedCacheTests {
         }
     }
 
+    struct directoryCache {
+        @Test func creates_cache_for_directory_url_using_json_encoding() async throws {
+            guard #available(iOS 16.0, macOS 13.0, *) else { return }
+            let directory = makeTemporaryDirectory(named: #function)
+            let sut = try await FileSystemBackedCache<String, TestValue>.directoryCache(at: directory)
+            let expected = TestValue(message: "hello")
+
+            sut.insert(expected, for: anyKey)
+            try await Task.sleep(for: .milliseconds(100))
+
+            #expect(sut.value(for: anyKey) == expected)
+        }
+
+        @Test func throws_if_directory_url_is_nil() async throws {
+            guard #available(iOS 16.0, macOS 13.0, *) else { return }
+
+            await #expect(throws: FileSystemBackedCache<String, TestValue>.Error.noDirectoryProvided) {
+                _ = try await FileSystemBackedCache<String, TestValue>.directoryCache(at: nil)
+            }
+        }
+    }
+
     struct insert {
         
         @Test func calls_archiver() async throws {

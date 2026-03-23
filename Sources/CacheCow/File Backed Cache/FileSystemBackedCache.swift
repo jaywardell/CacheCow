@@ -51,6 +51,19 @@ public final class FileSystemBackedCache<Key: CacheKey, Value: Sendable>: Sendab
     private let dateProvider: @Sendable () -> Date
     private let archiver: FileSystemBackedArchiver
     
+    /// Errors thrown while creating a URL-keyed file-backed cache.
+    enum Error: Swift.Error, LocalizedError {
+        /// Indicates that no directory URL was supplied to a factory method.
+        case noDirectoryProvided
+
+        public var errorDescription: String? {
+            switch self {
+            case .noDirectoryProvided:
+                "no directory was provided"
+            }
+        }
+    }
+
     /// Creates a file-backed cache.
     ///
     /// - Parameters:
@@ -81,6 +94,27 @@ extension FileSystemBackedCache where Value: Codable {
         archiver: FileSystemBackedArchiver
     ) {
         self.init(
+            encode: { try? JSONEncoder().encode($0) },
+            decode: { try? JSONDecoder().decode(Value.self, from: $0) },
+            dateProvider: dateProvider,
+            archiver: archiver
+        )
+    }
+    
+    /// Creates a file-backed cache rooted at a specific directory URL and uses JSON for encoding.
+    ///
+    /// - Parameters:
+    ///   - dateProvider: A date supplier reserved for parity with other cache implementations.
+    ///   - directory: The directory used to store archived values. Pass a concrete URL, or `nil` to fail with ``FileSystemBackedCache/Error/noDirectoryProvided``.
+    /// - Returns: A file-backed cache that uses the provided directory.
+    /// - Throws: ``FileSystemBackedCache/Error/noDirectoryProvided`` if `directory` is `nil`.
+    public static func directoryCache(
+        dateProvider: @Sendable @escaping () -> Date = Date.init,
+        at directory: URL?
+    ) async throws -> Self {
+        guard let directory else { throw Error.noDirectoryProvided }
+        let archiver = try await DirectoryBackedArchiver(at: directory)
+        return .init(
             encode: { try? JSONEncoder().encode($0) },
             decode: { try? JSONDecoder().decode(Value.self, from: $0) },
             dateProvider: dateProvider,
@@ -162,18 +196,6 @@ extension URL: CacheKey {
 
 @available(iOS 16.0, macOS 13.0, *)
 extension FileSystemBackedCache where Key == URL {
-    /// Errors thrown while creating a URL-keyed file-backed cache.
-    enum Error: Swift.Error, LocalizedError {
-        /// Indicates that no directory URL was supplied to a factory method.
-        case noDirectoryProvided
-
-        public var errorDescription: String? {
-            switch self {
-            case .noDirectoryProvided:
-                "no directory was provided"
-            }
-        }
-    }
     
     /// Creates a file-backed cache rooted at a specific directory URL.
     ///
