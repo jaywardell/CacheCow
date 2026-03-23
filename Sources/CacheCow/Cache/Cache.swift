@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// An in-memory cache backed by `NSCache`.
 public final class Cache<Key: Hashable, Value> {
     private let wrapped = NSCache<WrappedKey, Entry>()
     private let dateProvider: () -> Date
@@ -15,6 +16,12 @@ public final class Cache<Key: Hashable, Value> {
     private let keyTracker = KeyTracker()
     
     // MARK: -
+    /// Creates a cache with optional expiration and count limits.
+    ///
+    /// - Parameters:
+    ///   - dateProvider: A closure that supplies the current date when evaluating expirations.
+    ///   - entryLifetime: The number of seconds that inserted entries remain valid. Pass `nil` to disable expiration.
+    ///   - countLimit: The advisory maximum number of entries `NSCache` should keep in memory.
     public init(dateProvider: @escaping () -> Date = Date.init,
          entryLifetime: TimeInterval? = nil,
          countLimit: Int = 0) {
@@ -54,10 +61,18 @@ public final class Cache<Key: Hashable, Value> {
 
 // MARK: - Public API
 extension Cache: Caching {
+    /// The keys currently tracked by the cache.
     public var keys: some Collection<Key> { keyTracker.keys }
+    /// The number of entries currently tracked by the cache.
     public var count: Int { keyTracker.keys.count }
+    /// A Boolean value that indicates whether the cache has no tracked entries.
     public var isEmpty: Bool { keyTracker.keys.isEmpty }
 
+    /// Stores a value in the cache for the given key.
+    ///
+    /// - Parameters:
+    ///   - value: The value to cache.
+    ///   - key: The key that identifies the value.
     public func insert(_ value: Value, for key: Key) {
         let date = entryLifetime.map { dateProvider().addingTimeInterval($0) } ?? .distantFuture
         let entry = Entry(key: key, value: value, expirationDate: date)
@@ -66,19 +81,28 @@ extension Cache: Caching {
     }
 
 
+    /// Returns the cached value for a key if it has not expired.
+    ///
+    /// - Parameter key: The key associated with the desired value.
+    /// - Returns: The cached value, or `nil` if no value exists or the value has expired.
     public func value(for key: Key) -> Value? {
 
         return entry(for: key)?.value
     }
 
+    /// Removes any cached value for the given key.
+    ///
+    /// - Parameter key: The key whose value should be removed.
     public func removeValue(for key: Key) {
         wrapped.removeObject(forKey: WrappedKey(key))
     }
     
+    /// Removes all values from the cache.
     public func clear() {
         wrapped.removeAllObjects()
     }
 
+    /// Accesses the cached value associated with the given key.
     public subscript(key: Key) -> Value? {
         get { return value(for: key) }
         set {
